@@ -2,7 +2,7 @@
 
 """
     Grill.py G-Code Generator
-    Version 1.1
+    Version 1.2
     Copyright (C) <2008>  <Lawrence Glaister> <ve7it at shaw dot ca>
     based on work by <John Thornton>  -- thanks John!
 
@@ -29,6 +29,7 @@
 
     Version 1.0 intial round pattern
     Version 1.1 added rectangular and oval shapes
+    Version 1.2 offset alternate lines by 1/2 the spacing
 
 """
 
@@ -289,11 +290,16 @@ class Application(Frame):
 
         first = 1;
         numholes = 0;
+        YSpacing = sqrt((Spacing * Spacing) - ((Spacing/2.0) * (Spacing/2.0)))
+
         # grid computed so it is always symmetrical about center point
         for x in range(-xholes,xholes):
-            for y in range(-yholes,yholes):
-                CurY = y * Spacing
-                CurX = x * Spacing
+            for y in range(-yholes-1,yholes+1):
+                CurY = y * YSpacing
+                if (y % 2)==0:
+                    CurX = x * Spacing
+                else:
+                    CurX = x * Spacing + Spacing/2.0
 
                 # the selection criterion for holes is that the center has to be inside
                 # the requested grill perimeter
@@ -345,5 +351,5 @@ class Application(Frame):
         self.quit()
 
 app = Application()
-app.master.title("Grill.py 1.1 by Lawrence Glaister ")
+app.master.title("Grill.py 1.2 by Lawrence Glaister ")
 app.mainloop()
