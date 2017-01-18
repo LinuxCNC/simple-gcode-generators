@@ -2,9 +2,10 @@
 
 """
     Grill.py G-Code Generator
-    Version 1.2
-    Copyright (C) <2008>  <Lawrence Glaister> <ve7it at shaw dot ca>
-    based on work by <John Thornton>  -- thanks John!
+    Version 1.3
+    Copyright (C) <2012> <Alex Bobotek> <alex at bobotek dot net>
+  
+    based on work by <Lawrence Glaister> and <John Thornton>  -- thanks Lawrence and John!
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,12 +31,14 @@
     Version 1.0 intial round pattern
     Version 1.1 added rectangular and oval shapes
     Version 1.2 offset alternate lines by 1/2 the spacing
+    Version 1.3 fixed "Y clipping" bug from V1.2, added true oval and renamed old "oval" to "ellipse"
 
 """
 
 from Tkinter import *
 from math import *
 import os
+import math
 
 
 IN_AXIS = os.environ.has_key("AXIS_PROGRESS_BAR")
@@ -51,32 +54,36 @@ class Application(Frame):
     def createWidgets(self):
         self.HoleID = []
         self.gcode = []
+        self.CanvasSize = IntVar()
+        self.CanvasSize.set(300)
         self.PreviewFrame = Frame(self,bd=5)
         self.PreviewFrame.grid(row=0, column=0)
-        self.PreviewCanvas = Canvas(self.PreviewFrame,width=300, height=300, bg='white', bd='3', relief = 'raised')
+        self.PreviewCanvas = Canvas(self.PreviewFrame,width=500, height=500, bg='white', bd='3', relief = 'raised')
         self.PreviewCanvas.grid(sticky=N+S+E+W)
-        self.XLine = self.PreviewCanvas.create_line(15,150,285,150, fill = 'green')
-        self.YLine = self.PreviewCanvas.create_line(150,15,150,285, fill = 'green')
+        self.XLine = self.PreviewCanvas.create_line(15,500/2,500 - 15,500/2, fill = 'green')
+        self.YLine = self.PreviewCanvas.create_line(250,15,250,485, fill = 'green')
 
         self.EntryFrame = Frame(self,bd=5)
         self.EntryFrame.grid(row=0, column=1)
 
-        self.st00 = Label(self.EntryFrame, text='Peck Drill an Array of Holes\n')
+        self.st00 = Label(self.EntryFrame, text='      Peck Drill an Array of Holes\n\n\n\n\n\n\n\n\n')
         self.st00.grid(row=0, column=0, columnspan=2)
 
         self.st000 = Label(self.EntryFrame, text='Shape')
         self.st000.grid(row=1, column=0)
         self.ShapeVar = IntVar()
         self.ShapeVar.set(1)
-        Radiobutton(self.EntryFrame, text='Circle', variable=self.ShapeVar, value = 0, command=self.DoIt).grid(row=1, column=1, sticky = W)
-        Radiobutton(self.EntryFrame, text='Oval',   variable=self.ShapeVar, value = 1, command=self.DoIt).grid(row=1, column=1)
-        Radiobutton(self.EntryFrame, text='Rect',   variable=self.ShapeVar, value = 2, command=self.DoIt).grid(row=1, column=1, sticky = E)
+        Radiobutton(self.EntryFrame, text='Circle', variable=self.ShapeVar, value = 0, command=self.DoIt).grid(row=1, column=1, sticky=W)
+        Radiobutton(self.EntryFrame, text='Ellipse', variable=self.ShapeVar, value = 1, command=self.DoIt).grid(row=1, column=1)
+        Radiobutton(self.EntryFrame, text='Rectangle',   variable=self.ShapeVar, value = 2, command=self.DoIt).grid(row=1, column=1, sticky=E)
+        Radiobutton(self.EntryFrame, text='Oval',   variable=self.ShapeVar, value = 3, command=self.DoIt).grid(row=1, column=2)
+
 
 
         self.st01 = Label(self.EntryFrame, text='Preamble')
         self.st01.grid(row=2, column=0)
         self.PreambleVar = StringVar()
-        self.PreambleVar.set('G17 G20 G90 G64 P0.003 M3 S3000 M7')
+        self.PreambleVar.set('G17 G21 G90 G64 P0.05 M3 S2000 M7')
         self.Preamble = Entry(self.EntryFrame, textvariable=self.PreambleVar ,width=35)
         self.Preamble.grid(row=2, column=1)
 
@@ -99,54 +106,54 @@ class Application(Frame):
         self.st04 = Label(self.EntryFrame, text='Dimension of Grill(X,Y)')
         self.st04.grid(row=5, column=0)
         self.GrillXVar = StringVar()
-        self.GrillXVar.set('3.1')
+        self.GrillXVar.set('40')
         self.GrillX = Entry(self.EntryFrame, textvariable=self.GrillXVar ,width=15)
         self.GrillX.grid(row=5, column=1, sticky = W)
 
         self.GrillYVar = StringVar()
-        self.GrillYVar.set('2.1')
+        self.GrillYVar.set('80')
         self.GrillY = Entry(self.EntryFrame, textvariable=self.GrillYVar ,width=15)
         self.GrillY.grid(row=5, column=1, sticky = E)
 
         self.st05 = Label(self.EntryFrame, text='Hole Spacing')
         self.st05.grid(row=6, column=0)
         self.HoleSpaceVar = StringVar()
-        self.HoleSpaceVar.set('0.3')
+        self.HoleSpaceVar.set('2.5')
         self.HoleSpace = Entry(self.EntryFrame, textvariable=self.HoleSpaceVar ,width=15)
         self.HoleSpace.grid(row=6, column=1)
 
         self.st06 = Label(self.EntryFrame, text='Final Hole Depth')
         self.st06.grid(row=7, column=0)
         self.HoleDepthVar = StringVar()
-        self.HoleDepthVar.set('-0.25')
+        self.HoleDepthVar.set('-4')
         self.HoleDepth = Entry(self.EntryFrame, textvariable=self.HoleDepthVar ,width=15)
         self.HoleDepth.grid(row=7, column=1)
 
         self.st07 = Label(self.EntryFrame, text='Q - peck incr')
         self.st07.grid(row=8, column=0)
         self.PeckVar = StringVar()
-        self.PeckVar.set('0.1')
+        self.PeckVar.set('10')
         self.Peck = Entry(self.EntryFrame, width=15, textvariable = self.PeckVar)
         self.Peck.grid(row=8, column=1)
 
         self.st08 = Label(self.EntryFrame, text='R - Safe Z')
         self.st08.grid(row=9, column=0)
         self.SafeZVar = StringVar()
-        self.SafeZVar.set('0.085')
+        self.SafeZVar.set('4')
         self.SafeZ = Entry(self.EntryFrame, width=15, textvariable = self.SafeZVar)
         self.SafeZ.grid(row=9, column=1)
 
         self.st09 = Label(self.EntryFrame, text='Feedspeed')
         self.st09.grid(row=10, column=0)
         self.FeedspeedVar = StringVar()
-        self.FeedspeedVar.set('5.0')
+        self.FeedspeedVar.set('500')
         self.Feedspeed = Entry(self.EntryFrame, textvariable=self.FeedspeedVar ,width=15)
         self.Feedspeed.grid(row=10, column=1)
 
         self.st10 = Label(self.EntryFrame, text='Drill Size')
         self.st10.grid(row=11, column=0)
         self.DrillVar = StringVar()
-        self.DrillVar.set('0.1875')
+        self.DrillVar.set('1.8')
         self.Drill = Entry(self.EntryFrame, textvariable=self.DrillVar ,width=15)
         self.Drill.grid(row=11, column=1)
 
@@ -209,9 +216,9 @@ class Application(Frame):
         # rough guess at number of holes each direction from centerpoint
         xholes = int(((float(self.GrillX.get())/float(self.HoleSpaceVar.get()))+3.0)/2.0)
         if self.ShapeVar.get() == 0:    # circular grid
-            yholes = int(((float(self.GrillX.get())/float(self.HoleSpaceVar.get()))+3.0)/2.0)
+            yholes = int(((float(self.GrillX.get())/float(self.HoleSpaceVar.get()))+3.0)/cos(math.pi/6))
         else:
-            yholes = int(((float(self.GrillY.get())/float(self.HoleSpaceVar.get()))+3.0)/2.0)
+            yholes = int(((float(self.GrillY.get())/float(self.HoleSpaceVar.get()))+3.0)/cos(math.pi/6))
 
         # erase old holes/display objects as needed
         for hole in self.HoleID:
@@ -221,7 +228,7 @@ class Application(Frame):
         # erase old gcode as needed
         self.gcode = []
         self.gcode.append('( Code generated by grill.py widget )')
-        self.gcode.append('( by Lawrence Glaister VE7IT - 2008 )')
+        self.gcode.append('( by Alex Bobotek - 2012 )')
         self.gcode.append(self.PreambleVar.get())
         self.gcode.append( 'G0 Z%.4f F%s' %(float(self.SafeZVar.get()), self.FeedspeedVar.get()))
 
@@ -237,16 +244,16 @@ class Application(Frame):
             self.GrillY.configure(state=DISABLED)
             GrillRadius = float(self.GrillXVar.get())/2.0
             RadSQ = GrillRadius * GrillRadius
-            Scale = float(self.GrillXVar.get()) * 1.2 / 300.0
+            Scale = float(self.GrillXVar.get()) * 1.2 / 500.0
             self.HoleID.append(self.PreviewCanvas.create_oval(
-                150-GrillRadius/Scale,
-                150-GrillRadius/Scale,
-                150+GrillRadius/Scale,
-                150+GrillRadius/Scale, outline='green'))
+                250-GrillRadius/Scale,
+                250-GrillRadius/Scale,
+                250+GrillRadius/Scale,
+                250+GrillRadius/Scale, outline='green'))
 
-        if self.ShapeVar.get() == 1:      # oval
-            # temps used for oval grills
-            self.gcode.append('( %.4fx%.4f oval grill at %.4f,%.4f )'
+        if self.ShapeVar.get() == 1:      # ellipse
+            # temps used for elliptical grills
+            self.gcode.append('( %.4fx%.4f elliptical grill at %.4f,%.4f )'
                 %(float(self.GrillXVar.get()),
                   float(self.GrillYVar.get()),
                   float(self.XGrillCenterVar.get()),
@@ -258,14 +265,14 @@ class Application(Frame):
             aSQ = a * a
             bSQ = b * b
             if a > b:
-                Scale = float(self.GrillXVar.get()) * 1.2 / 300.0
+                Scale = float(self.GrillXVar.get()) * 1.2 / 500.0
             else:
-                Scale = float(self.GrillYVar.get()) * 1.2 / 300.0
+                Scale = float(self.GrillYVar.get()) * 1.2 / 500.0
             self.HoleID.append(self.PreviewCanvas.create_oval(
-                150-a/Scale,
-                150-b/Scale,
-                150+a/Scale,
-                150+b/Scale, outline='green'))
+                250-a/Scale,
+                250-b/Scale,
+                250+a/Scale,
+                250+b/Scale, outline='green'))
 
         if self.ShapeVar.get() == 2:      # rectangle
             # temps used for rectangular grills
@@ -279,14 +286,38 @@ class Application(Frame):
             a = float(self.GrillXVar.get())/2.0
             b = float(self.GrillYVar.get())/2.0
             if a > b:
-                Scale = float(self.GrillXVar.get()) * 1.2 / 300.0
+                Scale = float(self.GrillXVar.get()) * 1.2 / 500.0
             else:
-                Scale = float(self.GrillYVar.get()) * 1.2 / 300.0
+                Scale = float(self.GrillYVar.get()) * 1.2 / 500.0
             self.HoleID.append(self.PreviewCanvas.create_rectangle(
-                150-a/Scale,
-                150-b/Scale,
-                150+a/Scale,
-                150+b/Scale, outline='green'))
+                250-a/Scale,
+                250-b/Scale,
+                250+a/Scale,
+                250+b/Scale, outline='green'))
+
+        if self.ShapeVar.get() == 3:      # oval
+            # temps used for oval grills
+            self.gcode.append('( %.4fx%.4f oval grill at %.4f,%.4f )'
+                %(float(self.GrillXVar.get()),
+                  float(self.GrillYVar.get()),
+                  float(self.XGrillCenterVar.get()),
+                  float(self.YGrillCenterVar.get()) ))
+
+            self.GrillY.configure(state=NORMAL)
+            a = float(self.GrillXVar.get())/2.0
+            b = float(self.GrillYVar.get())/2.0
+            aSQ = a * a
+            bSQ = b * b
+            if a > b:
+                Scale = float(self.GrillXVar.get()) * 1.2 / 500.0
+            else:
+                Scale = float(self.GrillYVar.get()) * 1.2 / 500.0
+            self.HoleID.append(self.PreviewCanvas.create_oval(
+                250-a/Scale,
+                250-b/Scale,
+                250+a/Scale,
+                250+b/Scale, outline='green'))
+
 
         first = 1;
         numholes = 0;
@@ -304,24 +335,35 @@ class Application(Frame):
                 # the selection criterion for holes is that the center has to be inside
                 # the requested grill perimeter
                 inside = 0
-                if self.ShapeVar.get() == 0:          # circle
+                if self.ShapeVar.get() == 0:      # circle
                     if (( CurY * CurY + CurX * CurX ) < RadSQ):
                         inside = 1
-                if self.ShapeVar.get() == 1:      # oval
+                if self.ShapeVar.get() == 1:      # ellipse
                     if ((CurX * CurX / aSQ) + ( CurY * CurY /bSQ )) < 1:
                         inside = 1
                 if self.ShapeVar.get() == 2:      # rectangle
                     if (CurX > -a  and CurX < a and CurY > -b and CurY < b):
                         inside = 1
+                if self.ShapeVar.get() == 3:      # oval
+                    if (b >= a):
+                        if (abs(CurX) < a) and (abs(CurY) < (b - a)):
+                            inside = 1
+                        if (CurX * CurX) + (abs(CurY)-(b-a))*(abs(CurY)-(b-a)) < aSQ:
+                            inside = 1
+                    if (a > b):
+                        if (abs(CurX) < (a - b)) and (abs(CurY) < b):
+                            inside = 1
+                        if (abs(CurX)-(a-b))*(abs(CurX)-(a-b)) + (CurY * CurY)  < bSQ:
+                            inside = 1
 
                 if inside:
                     numholes += 1
                     # plot the hole position on the canvas
                     self.HoleID.append( self.PreviewCanvas.create_oval(
-                        150+(CurX-DrillRad)/Scale,
-                        150+(CurY-DrillRad)/Scale,
-                        150+(CurX+DrillRad)/Scale,
-                        150+(CurY+DrillRad)/Scale, fill='grey'))
+                        250+(CurX-DrillRad)/Scale,
+                        250+(CurY-DrillRad)/Scale,
+                        250+(CurX+DrillRad)/Scale,
+                        250+(CurY+DrillRad)/Scale, fill='grey'))
 
                     # generate the G code
                     if first:
@@ -337,7 +379,8 @@ class Application(Frame):
                             %( CurX + float(self.XGrillCenterVar.get()),
                                CurY + float(self.YGrillCenterVar.get())))
 
-        self.HoleID.append(self.PreviewCanvas.create_text(150, 295, text='%d holes'%(numholes)))
+        self.HoleID.append(self.PreviewCanvas.create_text(250, 495, text='%d holes with %2.2f%% open area'%(numholes, 
+		100*math.pi*float(self.DrillVar.get())*float(self.DrillVar.get())/6/float(self.HoleSpaceVar.get())/float(self.HoleSpaceVar.get())/tan(math.pi/6)  )))
         self.gcode.append(self.PostambleVar.get())
 
     def CopyClipboard(self):
@@ -351,5 +394,5 @@ class Application(Frame):
         self.quit()
 
 app = Application()
-app.master.title("Grill.py 1.2 by Lawrence Glaister ")
+app.master.title("Grill.py 1.3 by Alex Bobotek and Lawrence Glaister")
 app.mainloop()
