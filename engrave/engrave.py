@@ -28,9 +28,10 @@
     http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Simple_EMC_G-Code_Generators
 
     Version 10 intial code
-
+    version 11 - lpg 14oct2008  fixed sytax error that prevented code running on 
+               python 2.4 (supplied with ubuntu 6.06)
 """
-version = '10'
+version = '11'
 #fontfile = "/usr/share/qcad/fonts/romans2.cxf"
 fontfile = "/usr/share/qcad/fonts/romanc.cxf"
 #fontfile = "/usr/share/qcad/fonts/normal.cxf"
@@ -118,7 +119,7 @@ def parse(file):
 
 
 #=======================================================================
-class Character():
+class Character:
     def __init__(self, key):
         self.key = key
         self.stroke_list = []
