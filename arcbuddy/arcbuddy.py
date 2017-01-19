@@ -2,7 +2,7 @@
 
 """
 Arc Buddy G-Code Generator
-Version 1.5
+Version 1.6
 Copyright (C) <2008>  <John Thornton>
 
 This program is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ clicking and selecting properties then Permissions and Execute
 To use with EMC2 see the instructions at: 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Simple_EMC_G-Code_Generators
 
-Inspired by Sebastian Jardi Estadella addition to send the output to gEdit
+Inspired by Sebastian Jardi Estadella's addition to send the output to gEdit
 I've decided to incorporate it into Arc Buddy and make some additions that
 should make this program actually useful.
 
@@ -276,13 +276,15 @@ class Application(Frame):
 
   def SendAll(self):
     self.DoIt()
-    sys.stdout.write(self.StartPoint.get() + "\r\n")
+    if self.FeedRateVar.get() <> '':
+      sys.stdout.write('F' + self.FeedRateVar.get() + "\r\n")
+    sys.stdout.write('G1 ' + self.StartPoint.get() + "\r\n")
     sys.stdout.write(self.ArcCode.get() + "\r\n")
     self.quit()
 
 
 app = Application()
-app.master.title("Arc Buddy 1.5")
+app.master.title("Arc Buddy 1.6")
 app.mainloop()        
 
 
