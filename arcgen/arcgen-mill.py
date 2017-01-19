@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 """
-Arc Buddy G-Code Generator
-Version 1.6
+Arc Generator G-Code Generator
+Version 1.8
 Copyright (C) <2008>  <John Thornton>
 
 This program is free software: you can redistribute it and/or modify
@@ -115,7 +115,7 @@ class Application(Frame):
     self.EndAngle.grid(row=5, column=1)
 
     self.st05 = Label(self.EntryFrame, text='Direction')
-    self.st05.grid(row=6, column=0)        
+    self.st05.grid(row=6, column=0)
     self.DirectionVar = IntVar()
     Radiobutton(self.EntryFrame, text='CCW', value=0, variable=self.DirectionVar)\
         .grid(row=6, column=1, sticky = W)
@@ -123,7 +123,7 @@ class Application(Frame):
     Radiobutton(self.EntryFrame, text='CW', value=1, variable=self.DirectionVar)\
         .grid(row=6, column=1, sticky = E)
 
-    self.st07 = Label(self.EntryFrame, text='Feed Rate')
+    self.st07 = Label(self.EntryFrame, text='Feed Value')
     self.st07.grid(row=7, column=0)
     self.FeedRateVar = StringVar()
     self.FeedRate = Entry(self.EntryFrame, textvariable=self.FeedRateVar ,width=15)
@@ -177,7 +177,7 @@ class Application(Frame):
       self.YArcCenterN = float(self.YArcCenterVar.get())
       self.ArcStart = float(self.StartAngleVar.get())
       self.ArcEnd = float(self.EndAngleVar.get())
-      self.ArcDirection = float(self.DirectionVar.get())
+      self.ArcDirection = int(self.DirectionVar.get())
 
       if self.ArcDirection == 0: #CCW
           if self.ArcStart < self.ArcEnd:
@@ -284,7 +284,7 @@ class Application(Frame):
 
 
 app = Application()
-app.master.title("Arc Buddy 1.6")
-app.mainloop()        
+app.master.title("Mill Arc Generator 1.8")
+app.mainloop()
 
 
