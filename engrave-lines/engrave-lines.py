@@ -6,12 +6,9 @@
     syntax  ---   see helpfile below
     
     Allows the generation of multiple lines of engraved text in one go
-    Will take each string arguement, apply X and Y offset after initial line,
-    generating code until last line done
+    Will take each string arguement, apply X and Y offset generating code until last line done
     
-    The sample values are for the engraving of 3 lines of text, max 10 chars,
-    onto a 42x19mm brass trophy label
-    
+  
     based upon code from engrave-11.py
     Copyright (C) <2008>  <Lawrence Glaister> <ve7it at shaw dot ca>
                      based on work by John Thornton  -- GUI framwork from arcbuddy.py
@@ -459,6 +456,10 @@ def main():
         print 'Error: You tried to use an unknown option. Try `engrave-lines.py -h\' for more information.'
         sys.exit(0)
         
+    if len(sys.argv[1:]) == 0:
+        help_message()
+        sys.exit(0)    
+    
     for a in options[:]:
         if a[0] == '-h':
             help_message()
