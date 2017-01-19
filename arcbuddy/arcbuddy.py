@@ -2,7 +2,7 @@
 
 """
     Arc Buddy G-Code Generator
-    Version 1.3
+    Version 1.4
     Copyright (C) <2008>  <John Thornton>
 
     This program is free software: you can redistribute it and/or modify
@@ -59,10 +59,10 @@ class Application(Frame):
 
         self.EntryFrame = Frame(self,bd=5)
         self.EntryFrame.grid(row=0, column=1)
-        
+
         self.st00 = Label(self.EntryFrame, text='Figure out the G2/3 Code')
         self.st00.grid(row=0, column=0, columnspan=2)
-        
+
         self.st01 = Label(self.EntryFrame, text='X Center of Arc')
         self.st01.grid(row=1, column=0)
         self.XArcCenterVar = StringVar()
@@ -102,29 +102,36 @@ class Application(Frame):
         Radiobutton(self.EntryFrame, text='CW', value=1, variable=self.DirectionVar)\
             .grid(row=6, column=1, sticky = E)
 
+        self.st07 = Label(self.EntryFrame, text='Feed Rate')
+        self.st07.grid(row=7, column=0)
+        self.FeedRateVar = StringVar()
+        self.FeedRate = Entry(self.EntryFrame, textvariable=self.FeedRateVar ,width=15)
+        self.FeedRate.grid(row=7, column=1)
+
+
         self.sp00 = Label(self.EntryFrame, text=' ')
-        self.sp00.grid(row=7)
+        self.sp00.grid(row=8)
 
         self.st06 = Label(self.EntryFrame, text='Starting Point for the Arc')
-        self.st06.grid(row=8, column=0, columnspan=2) 
+        self.st06.grid(row=9, column=0, columnspan=2) 
         self.StartPointVar = StringVar()  
         self.StartPoint = Entry(self.EntryFrame, width=30, textvariable = self.StartPointVar)
-        self.StartPoint.grid(row=9, column=0, columnspan=2)
+        self.StartPoint.grid(row=10, column=0, columnspan=2)
 
         self.st06 = Label(self.EntryFrame, text='G Code for the Arc')
-        self.st06.grid(row=10, column=0, columnspan=2) 
+        self.st06.grid(row=11, column=0, columnspan=2) 
         self.ArcCodeVar = StringVar()  
         self.ArcCode = Entry(self.EntryFrame, width=35, textvariable = self.ArcCodeVar)
-        self.ArcCode.grid(row=11, column=0, columnspan=2)
+        self.ArcCode.grid(row=12, column=0, columnspan=2)
 
         self.sp01 = Label(self.EntryFrame, text=' ')
-        self.sp01.grid(row=12)
+        self.sp01.grid(row=13)
         
         self.DoItButton = Button(self.EntryFrame, text='Show Me', command=self.DoIt)
-        self.DoItButton.grid(row=13, column=0)
+        self.DoItButton.grid(row=14, column=0)
         
         self.ToClipboard = Button(self.EntryFrame, text='To Clipboard', command=self.CopyClipboard)
-        self.ToClipboard.grid(row=13, column=1)
+        self.ToClipboard.grid(row=14, column=1)
         
 
         if IN_AXIS:
@@ -227,15 +234,21 @@ class Application(Frame):
             self.ArcCodeVar.set('G2 X%.4f Y%.4f I%.4f J%.4f' \
             %(self.XEnd, self.YEnd, self.IOffset, self.JOffset))
 
+        self.gcode = 'F' + self.FeedRateVar.get() + '\n'
+        self.gcode += 'G0 '+ self.StartPointVar.get() + '\n'
+        self.gcode += self.ArcCodeVar.get() + '\n'
+        self.gcode += 'M2'
+
     def CopyClipboard(self):
         self.ArcCode.clipboard_clear()
         self.ArcCode.clipboard_append(self.ArcCode.get())
             
     def WriteToAxis(self):
-        sys.stdout.write(self.g_code.get(0.0, END))
+        sys.stdout.write(self.gcode)
         self.quit()
 
 app = Application()
-app.master.title("Arc Buddy 1.3")
+app.master.title("Arc Buddy 1.4")
 app.mainloop()        
+
 
