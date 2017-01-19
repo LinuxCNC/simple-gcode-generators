@@ -29,9 +29,9 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+    Rev v2 21.06.2012 ArcEye
 """
-
+# change this if you want to use another font
 fontfile = "/usr/share/qcad/fonts/romanc.cxf"
 
 from Tkinter import *
@@ -46,9 +46,7 @@ String =   ""
 SafeZ =    2
 XStart =   0
 XLineOffset =   0
-XSingle = 0
-XRecurring = 0
-XIndentLine = 0
+XIndentList = ""
 YStart = 0
 YLineOffset = 0
 Depth =    0.1
@@ -93,6 +91,7 @@ class Line:
 
     def __repr__(self):
         return "Line([%s, %s, %s, %s])" % (self.xstart, self.ystart, self.xend, self.yend)
+
 
 
 
@@ -230,18 +229,12 @@ def Rotn(x,y,xscale,yscale,angle):
 
 #=======================================================================
 
-
-
-
-
 def code(arg, visit, last):
 
     global SafeZ
     global XStart
     global XLineOffset
-    global XSingle
-    global XRecurring
-    global XIndentLine    
+    global XIndentList
     global YStart
     global YLineOffset
     global Depth
@@ -257,16 +250,8 @@ def code(arg, visit, last):
     global stringlist
 
     String = arg
-    spacer = 5
-    str1 = ""
-    
-    if XIndentLine == 1:
-        spacer = 2
-    if XIndentLine == 2:
-        spacer = 3
-    if XIndentLine == 3:
-        spacer = 4
 
+    str1 = ""
     #erase old gcode as needed
     gcode = []
     
@@ -274,31 +259,17 @@ def code(arg, visit, last):
   
     oldx = oldy = -99990.0      
     
+                 
     if visit != 0:
         # all we need is new X and Y for subsequent lines
         gcode.append("(===================================================================)")
         gcode.append('( Engraving: "%s" )' %(String) )
         gcode.append('( Line %d )' %(visit))
-        # if there is an offset and a line number set
-        if XLineOffset and XIndentLine :
-            if XRecurring :  # if indent reoccurs every multiple spacing of XIndentLine
-                if visit >= XIndentLine and (visit == XIndentLine or visit == XIndentLine + spacer  or visit == XIndentLine + (spacer * 2) or visit == XIndentLine + (spacer * 3) or visit == XIndentLine + (spacer * 4)  ):
-                    str1 = '#1002 = %.4f  ( X Start )' %(XStart + XLineOffset)
-                else:
-                    str1 = '#1002 = %.4f  ( X Start )' %(XStart)
-            else :
-                if XSingle : #just 1 indent
-                    if visit == XIndentLine :
-                        str1 = '#1002 = %.4f  ( X Start )' %(XStart + XLineOffset)
-                    else:
-                        str1 = '#1002 = %.4f  ( X Start )' %(XStart)
-                else:  # indent every line from XIndentLine
-                    if visit >= XIndentLine :
-                        str1 = '#1002 = %.4f  ( X Start )' %(XStart + XLineOffset)
-                    else:
-                        str1 = '#1002 = %.4f  ( X Start )' %(XStart)
-        else:
-            str1 = '#1002 = %.4f  ( X Start )' %(XStart)
+
+        str1 = '#1002 = %.4f  ( X Start )' %(XStart)        
+        if XLineOffset :
+            if XIndentList.find(str(visit)) != -1 :
+                str1 = '#1002 = %.4f  ( X Start )' %(XStart + XLineOffset)
             
         gcode.append(str1)
         gcode.append('#1003 = %.4f  ( Y Start )' %(YStart - (YLineOffset * visit)))
@@ -332,7 +303,12 @@ def code(arg, visit, last):
     
         gcode.append("#1000 = %.4f" %(SafeZ))
         gcode.append('#1001 = %.4f  ( Engraving Depth Z )' %(Depth))
-        gcode.append('#1002 = %.4f  ( X Start )' %(XStart))
+        
+        str1 = '#1002 = %.4f  ( X Start )' %(XStart)        
+        if XLineOffset :
+            if XIndentList.find(str(visit)) != -1 :
+                str1 = '#1002 = %.4f  ( X Start )' %(XStart + XLineOffset)
+        gcode.append(str1)
         gcode.append('#1003 = %.4f  ( Y Start )' %(YStart))
         gcode.append('#1004 = %.4f  ( X Scale )' %(XScale))
         gcode.append('#1005 = %.4f  ( Y Scale )' %(YScale))
@@ -418,14 +394,12 @@ def help_message():
             based upon code from engrave-11.py
             Copyright (C) <2008>  <Lawrence Glaister> <ve7it at shaw dot ca>'''
             
-    print '''engrave-lines.py -X -x -a -A -R -Y -y -S -s -Z -D -C -W -M -F -P -p -0 -1 -2 -3 ..............
+    print '''engrave-lines.py -X -x -i -Y -y -S -s -Z -D -C -W -M -F -P -p -0 -1 -2 -3 ..............
        Options: 
        -h   Display this help message
        -X   Start X value                       Defaults to 0
        -x   X offset between lines              Defaults to 0
-       -a   X indent from / on line N           Only valid if -x != 0
-       -A   Single X offset                     Only valid if -x != 0  Set only if needed and -R not set
-       -R   Recurring  X offsets                Only valid if -x != 0  Set only if needed and -A not set
+       -i   X indent line list                  String of lines to indent in single quotes
        -Y   Start Y value                       Defaults to 0
        -y   Y offset between lines              Defaults to 0
        -S   X Scale                             Defaults to 1
@@ -449,7 +423,7 @@ def help_message():
        -8   Line8 string follow this
        -9   Line9 string follow this
       Example
-      engrave-lines.py -X7.5 -x5 -a1 -R -Y12.75 -y5.25 -S0.4 -s0.5 -Z2 -D0.1 -0'Line0' -1'Line1' -2'Line2' -3'Line3' > test.ngc
+      engrave-lines.py -X7.5 -x5 -i'123' -Y12.75 -y5.25 -S0.4 -s0.5 -Z2 -D0.1 -0'Line0' -1'Line1' -2'Line2' -3'Line3' > test.ngc
     '''
     sys.exit(0)
 
@@ -464,9 +438,7 @@ def main():
     global SafeZ
     global XStart
     global XLineOffset
-    global XSingle
-    global XRecurring
-    global XIndentLine    
+    global XIndentList
     global YStart
     global YLineOffset
     global Depth
@@ -482,7 +454,7 @@ def main():
     global stringlist
     
     try:
-        options, xarguments = getopt.getopt(sys.argv[1:], 'hARd:X:x:a:Y:y:S:s:Z:D:C:W:M:F:P:p:L:0:1:2:3:4:5:6:7:8:9:')
+        options, xarguments = getopt.getopt(sys.argv[1:], 'hd:X:x:i:Y:y:S:s:Z:D:C:W:M:F:P:p:L:0:1:2:3:4:5:6:7:8:9:')
     except getopt.error:
         print 'Error: You tried to use an unknown option. Try `engrave-lines.py -h\' for more information.'
         sys.exit(0)
@@ -506,7 +478,6 @@ def main():
                 print'X = %.4f' %(XStart)
             options.remove(a)
             break
-# else use default value
 
     for a in options[:]:
         if a[0] == '-x' and a[1] != '':
@@ -517,26 +488,10 @@ def main():
             break
 
     for a in options[:]:
-        if a[0] == '-A':
-            XSingle = 1
+        if a[0] == '-i' and a[1] != '':
+            XIndentList = a[1]
             if debug:
-                print'A = %d' %(XSingle)
-            options.remove(a)
-            break
-            
-    for a in options[:]:
-        if a[0] == '-R':
-            XRecurring = 1
-            if debug:
-                print'R = %d' %(XRecurring)
-            options.remove(a)
-            break            
-
-    for a in options[:]:
-        if a[0] == '-a'and a[1] != '':
-            XIndentLine = int(a[1])
-            if debug:
-                print'a = %d' %(XIndentLine)
+                print'i = %s' %(a[1])
             options.remove(a)
             break
             
@@ -724,9 +679,6 @@ def main():
                 print'9 = %s' %(a[1])
             options.remove(a)
             break  
-    if XSingle and XRecurring:  
-        print 'Error: Both - A and -R switches set. Try `engrave-lines.py -h\' for more information.'
-        sys.exit(0)     
             
     for index, item in enumerate(stringlist):
         code(item,index, index == (len(stringlist) - 1) )

@@ -1,0 +1,97 @@
+.TH engrave-lines.py 1 21062012
+
+.SH NAME
+.nf
+engrave-lines.py - Generate g code to engrave multiple lines of text with optional indents to stdout
+
+.SH SYNOPSIS
+.nf
+.B engrave-lines.py [-X -x -i -Y -y -S -s -Z -D -C -W -M -F -P -p] -0 -1 -2 -3 ....
+
+.SH AVAILABILITY
+
+Tested in Linux with working python environment
+
+.SH DESCRIPTION
+.nf
+engrave-lines.py G-Code Engraving Generator for command-line usage
+(C) ArcEye <2012>  <arceye at mgware dot co dot uk>
+.P    
+Allows the generation of multiple lines of engraved text in one go
+Will take each string arguement, apply X and Y offset generating code until last line done
+.P    
+based upon code from engrave-11.py
+Copyright (C) <2008>  <Lawrence Glaister> <ve7it at shaw dot ca>
+    itself based on work by John Thornton  -- GUI framwork from arcbuddy.py
+    and Ben Lipkowitz  (fenn)-- cxf2cnc.py v0.5 font parsing code
+.fi
+.SH OPTIONS
+.nf
+.TP 
+       -h   Display this help message
+.TP        
+       -X   Start X value                       Defaults to 0
+.TP 
+       -x   X offset between lines              Defaults to 0
+.TP 
+       -i   X indent line list                  String of lines to indent in single quotes
+.TP 
+       -Y   Start Y value                       Defaults to 0
+.TP 
+       -y   Y offset between lines              Defaults to 0
+.TP 
+       -S   X Scale                             Defaults to 1
+.TP 
+       -s   Y Scale                             Defaults to 1       
+.TP 
+       -Z   Safe Z for moves                    Defaults to 2mm
+.TP 
+       -D   Z depth for engraving               Defaults to 0.1mm
+.TP 
+       -C   Charactor Space %                   Defaults to 25%
+.TP 
+       -W   Word Space %                        Defaults to 100%
+.TP 
+       -M   Mirror                              Defaults to 0 (No)
+.TP 
+       -F   Flip                                Defaults to 0 (No)
+.TP 
+       -P   Preamble g code                     Defaults to "G17 G21 G40 G90 G64 P0.003 F50"
+.TP 
+       -p   Postamble g code                    Defaults to "M2"
+.TP 
+       -0   Line0 string follow this            String in single quotes
+.TP 
+       -1   Line1 string follow this            String in single quotes
+.TP 
+       -2   Line2 string follow this            String in single quotes
+.TP 
+       -3   Line3 string follow this            String in single quotes
+.TP 
+       -4   Line4 string follow this            String in single quotes
+.TP 
+       -5   Line5 string follow this            String in single quotes
+.TP 
+       -6   Line6 string follow this            String in single quotes
+.TP 
+       -7   Line7 string follow this            String in single quotes
+.TP 
+       -8   Line8 string follow this            String in single quotes
+.TP 
+       -9   Line9 string follow this            String in single quotes
+.fi
+.SH FORMATTING
+.nf
+.B All strings must be enclosed in single quotes for switches -i -P -p -0 -1-2 -3 -4 -5 -6 -7 -8 -9
+.P
+.B No spaces between switch and argument
+
+.SH EXAMPLES
+
+.B engrave-lines.py -X7.5 -x5 -i'13' -Y12.75 -y5.25 -S0.4 -s0.5 -Z2 -D0.1 -0'Line0' -1'Line1' -2'Line2' -3'Line3' > test.ngc
+.TP
+Will engrave the 4 lines of text with a Y offset of 12.75 between lines and lines 1 and 3 indented to 12.5 ( -X + -x)
+.fi
+.SH AUTHOR
+
+ArcEye (arceye at mgware dot co dot uk)
