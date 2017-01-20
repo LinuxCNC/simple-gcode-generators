@@ -8,4 +8,4 @@ This program generates a circular array for canned drill cycles in a mill (ie 'b
 Screenshot
 -----------
 
-![Screenshot of boltcircle.py](boltcircle/boltcircle-screenshot.png)
+![Screenshot of boltcircle.py](boltcircle-screenshot.png)
