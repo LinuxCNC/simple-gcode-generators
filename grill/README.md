@@ -15,4 +15,4 @@ Features
 Screenshot
 -----------
 
-![Screenshot of version 1.3](grill-13.png)
+![Screenshot grill.py](grill-screenshot.png)
