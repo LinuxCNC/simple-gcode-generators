@@ -6,6 +6,7 @@ This repository contains a collection of Python scrips that generate simple G-Co
 You can either clone this repository using Git or download the whole repository as [a zip file](https://github.com/njh/simple-gcode-generators/archive/master.zip).
 
 
+
 The Scripts
 -----------
 
@@ -22,4 +23,33 @@ The Scripts
 * [Multi-line Text Engraving](engrave-lines/) - Engrave up to 10 lines of text
 
 
+
+Using Python scripts with Axis
+------------------------------
+
+To download a file right click on it and select "Save link as".
+
+Do the following...
+
+* Place the .py files in your nc directory so it is easy to find
+* Right click on the .py file in your file browser and select Properties. On the Permissions tab check Execute on the Owner line.
+
+Add the following lines to the ```[FILTER]``` section of the Axis ini file
+
+    [FILTER]
+    PROGRAM_EXTENSION = .py Python Script
+    py = python
+
+If you don't have a ```[FILTER]``` section just add it
+
+Now use File Open in AXIS to open face.py and after you generate the G-Code select *Write to AXIS* and Quit.
+
+
+
+Using Python scripts with Windows
+---------------------------------
+
+Rename the file from .py to .pyw
+
+Download and install the python program from [python.org](https://www.python.org/downloads/windows/).
 
