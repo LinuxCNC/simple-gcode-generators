@@ -53,3 +53,56 @@ Rename the file from .py to .pyw
 
 Download and install the python program from [python.org](https://www.python.org/downloads/windows/).
 
+
+
+Other G-Code Generators
+=======================
+
+
+### CP1
+
+CP1 is a conversational machining program written by Ray Henry and Matt Shaver. 
+It allows you to create G-code files for rectangular and circular pocket milling, bolt circles, hexagonal and rectangular arrays of holes, and "bezels" whatever those are.
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Cp1
+
+
+### Dxf2gcode - import a 2D DXF file and produce G-code
+
+This program seems to work pretty well with DXF files from QCAD.
+
+https://sourceforge.net/projects/dxf2gcode/
+
+
+### GCMC - G-Code Meta Compiler
+
+GCMC is a front-end language for generating G-code, SVG and DXF for CNC mills, lathes, laser cutters and other numerical controlled machines employing G-code, SVG or DXF. The language is a context-free grammar created to overcome the archaic format of G-code programming and aims to be more readable and understandable.
+
+http://www.vagrearg.org/content/gcmc
+
+
+### mGcodeGenerator
+
+A script for Blender. It can generate gcode ideal for LinuxCNC :) it exports from mesh ( vertex / edge / edges (outlines) / objects ) to 2d, 2.5d and full 3d for (3axis mill).
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GcodeGenerator
+
+
+### OpenVoronoi and OpenCAMLib
+
+There are some sample scripts and screenshots that use OpenVoronoi and OpenCAMLib:
+
+https://github.com/aewallin/linuxcnc-scripts
+
+
+### Pycam - Drop Cutter Surfacing Software
+
+A GPL 3D CNC Toolpath Generation program written by Lode Leroy.
+
+http://pycam.wiki.sourceforge.net/
+
+
+### TTT: Truetype Tracer
+A TrueType tracer with DXF and G-Code output
+
+http://www.timeguy.com/cradek/truetype
