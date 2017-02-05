@@ -5,7 +5,7 @@ This repository contains a collection of Python scrips that generate simple G-Co
 
 You can either clone this repository using Git or download the whole repository as [a zip file](https://github.com/linuxcnc/simple-gcode-generators/archive/master.zip).
 
-
+All of these scripts, written by various authors, are licenced under the [GNU General Public License](LICENSE.md).
 
 The Scripts
 -----------
