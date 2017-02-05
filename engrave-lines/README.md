@@ -1,7 +1,7 @@
 Multi-line Text Engraving Software
 ==================================
 
-**Download**: [engrave-lines.py](https://github.com/njh/simple-gcode-generators/raw/master/engrave-lines/engrave-lines.py)
+**Download**: [engrave-lines.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/engrave-lines/engrave-lines.py)
 
 Command line tool to generate G-Code to engrave multiple lines of text with optional indents to STDOUT.
 

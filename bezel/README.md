@@ -1,7 +1,7 @@
 Bezel Engraving Software
 ========================
 
-**Download**: [bezel.py](https://github.com/njh/simple-gcode-generators/raw/master/bezel/bezel.py)
+**Download**: [bezel.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/bezel/bezel.py)
 
 This software engraves a bezel like you would see on the front panel of a stereo around the volume control knobs.
 

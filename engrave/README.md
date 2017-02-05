@@ -3,7 +3,7 @@ Text Engraving Software
 
 **Download**:
 
-* [engrave.py](https://github.com/njh/simple-gcode-generators/raw/master/engrave/engrave.py)
+* [engrave.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/engrave/engrave.py)
 * [CXF fonts](cxf-fonts)
 
 This software engraves a text string.

@@ -1,7 +1,7 @@
 Drill Speed and Feed Tool
 =========================
 
-**Download**: [drill-speed.py](https://github.com/njh/simple-gcode-generators/raw/master/drill-speed/drill-speed.py)
+**Download**: [drill-speed.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/drill-speed/drill-speed.py)
 
 This tool helps you to calculate the speeds and feeds for drilling.
 
