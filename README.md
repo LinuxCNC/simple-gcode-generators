@@ -10,6 +10,7 @@ All of these scripts, written by various authors, are licenced under the [GNU Ge
 The Scripts
 -----------
 
+* [Airfoil Generator](airfoil/) - 3-4 Axis XY-XYUV Foam EDM Style airfoil generator
 * [Arc Generator](arcgen/) - generate an arc from the diameter, the start and end angle
 * [Bezel Engraving](bezel/) - engraves a bezel like you would see on the front panel of a stereo around the volume control knobs
 * [Bolt Circle Array](boltcircle/) - generates a circular array for canned drill cycles
