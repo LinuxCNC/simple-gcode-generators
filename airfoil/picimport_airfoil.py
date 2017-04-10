@@ -24,7 +24,7 @@ for line in filename:
     else:
         inhalt = file.read() 
         file.close()
-        name= str(line)+".dat"
+        name= "data/"+str(line)+".dat"
         f = open(name , 'w')
         f.write(inhalt)
         f.close()

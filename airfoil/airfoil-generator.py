@@ -73,7 +73,7 @@ def get_profilenames():
 def get_data(profilename):
     xy_data=[]
     url_dat = "http://www.ae.illinois.edu/m-selig/ads/coord/"
-    profilenametoload= path+'/'+str(profilename)+'.dat'	
+    profilenametoload= path+'/data/'+str(profilename)+'.dat'	
     try:
         #f = open(url_dat+str(profilename)+'.dat', 'r')
         f = open(profilenametoload, 'r')
