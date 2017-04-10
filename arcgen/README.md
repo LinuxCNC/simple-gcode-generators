@@ -1,7 +1,9 @@
 Arc Generator
 =============
 
-**Downloads**:
+**Author:** John Thornton
+
+**Downloads:**
 * [arcgen-mill.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/arcgen/arcgen-mill.py)
 * [arcgen-lathe.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/arcgen/arcgen-lathe.py)
 

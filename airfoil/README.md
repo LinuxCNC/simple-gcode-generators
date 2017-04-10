@@ -1,6 +1,8 @@
 Airfoil G-code Generator
 ========================
 
+**Author:** Sammel Lothar
+
 This is a 3-4 Axis XY-XYUV Foam EDM Style airfoil generator.
 It uses Airfoil Wing Profile data from the [UIUC Airfoil Data Site].
 

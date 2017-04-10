@@ -1,7 +1,9 @@
 Grid Generation Software
 ========================
 
-**Download**: [grid.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/grid/grid.py)
+**Author:** Sammel Lothar
+
+**Download:** [grid.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/grid/grid.py)
 
 This was written to test the speed and the accuracy of a milling mashine, 
 with the grid alot of moves are taken and you can see the accurate by,

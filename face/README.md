@@ -1,7 +1,9 @@
 Facing Software
 ===============
 
-**Download**: [face.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/face/face.py)
+**Author:** John Thornton
+
+**Download:** [face.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/face/face.py)
 
 The facing software is super simple. You input a few things and press a button and your code is saved to your NC directory ready to open in LinuxCNC!
 

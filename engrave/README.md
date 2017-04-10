@@ -1,8 +1,9 @@
 Text Engraving Software
 =======================
 
-**Download**:
+**Author:** Lawrence Glaister
 
+**Downloads:**
 * [engrave.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/engrave/engrave.py)
 * [CXF fonts](cxf-fonts)
 

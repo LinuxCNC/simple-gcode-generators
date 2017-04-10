@@ -1,7 +1,9 @@
 Grill Drilling Software
 =======================
 
-**Download**: [grill.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/grill/grill.py)
+**Author:** John Thornton
+
+**Download:** [grill.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/grill/grill.py)
 
 This software peck drills a circular array of holes typically used as a speaker grill or as ventilation holes in a chassis panel.
 

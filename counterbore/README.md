@@ -1,7 +1,9 @@
 Counterbore Software
 ====================
 
-**Download**: [counterbore.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/counterbore/counterbore.py)
+**Author:** John Thornton
+
+**Download:** [counterbore.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/counterbore/counterbore.py)
 
 This software generates the G-code for counterbores for socket head cap screws.
 
