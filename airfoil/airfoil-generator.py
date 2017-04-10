@@ -42,7 +42,7 @@ def programm_schliesen():
 def file_save():
     global g_code_code
     file_save = tkFileDialog.asksaveasfilename(title="NC-g_code-DATEI", \
-    filetypes=[("EMC2 file",".ngc"),("NCFRS file",".nc"),("NC TAP",".tap"),\
+    filetypes=[("LinuxCNC file",".ngc"),("NCFRS file",".nc"),("NC TAP",".tap"),\
     ("txt file",".txt"),("All files",".*")],initialfile="g_code",initialdir="/home/sammel/xyuv-foam/nc_files")
     fobj = open(file_save, "w") 
     # hier brauch ich die liste g_code_code
