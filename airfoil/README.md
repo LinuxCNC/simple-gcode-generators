@@ -19,7 +19,11 @@ Installation on Mac:
 
 To download the latest version of the airfoil data, use the script:
 
-   python picimport_airfoil.py
+    python picimport_airfoil.py
+
+To run the airfoil generator:
+
+    python airfoil-generator.py
 
 
 Screenshots
