@@ -23,8 +23,8 @@
     make sure you have made the file executable by right
     clicking and selecting properties then Permissions and Execute
 
-    To use with EMC2 see the instructions at:
-    http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Simple_EMC_G-Code_Generators
+    To use with LinuxCNC see the instructions at: 
+    https://github.com/linuxcnc/simple-gcode-generators
 
     Version 1.0 intial port from cp1 code
     Version 1.1 used vars to hold center offsets and Z depths for 

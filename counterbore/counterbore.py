@@ -28,8 +28,8 @@
     make sure you have made the file execuatble by right
     clicking and selecting properties then Permissions and Execute
     
-    To use with EMC2 see the instructions at: 
-    http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Simple_EMC_G-Code_Generators
+    To use with LinuxCNC see the instructions at: 
+    https://github.com/linuxcnc/simple-gcode-generators
     
     1.2 Fix bug that incorrectly calculated the number of circles when the tool
     	was less than 1/2 the diameter of the hole

@@ -2,7 +2,7 @@
 version = '1.4.0'
 # python face.py
 # Dec 4 2007
-# Face G-Code Generator for EMC2
+# Face G-Code Generator for LinuxCNC
 """
     Copyright (C) <2008>  <John Thornton>
 
@@ -27,8 +27,9 @@ version = '1.4.0'
     the command python YourPathToThisFile/face.py
     make sure you have made the file execuatble by right
     clicking and selecting properties then Permissions and Execute
-    To use with EMC2 see the instructions at: 
-    http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Simple_EMC_G-Code_Generators
+
+    To use with LinuxCNC see the instructions at: 
+    https://github.com/linuxcnc/simple-gcode-generators
 
 2008-02-24	Rick Calder "rick at llamatrails dot com"
 	Added option/code to select X0-Y0 position: Left-Rear or Left-Front

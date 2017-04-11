@@ -24,8 +24,8 @@
     make sure you have made the file executable by right
     clicking and selecting properties then Permissions and Execute
 
-    To use with EMC2 see the instructions at:
-    http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Simple_EMC_G-Code_Generators
+    To use with LinuxCNC see the instructions at: 
+    https://github.com/linuxcnc/simple-gcode-generators
 
     Version 10 intial code
     version 11 - lpg 14oct2008  fixed sytax error that prevented code running on 
@@ -195,7 +195,7 @@ class Application(Frame):
         self.st03 = Label(self.EntryFrame, text='Text')
         self.st03.grid(row=3, column=0)
         self.TextVar = StringVar()
-        self.TextVar.set('*EMC2 Rocks*')
+        self.TextVar.set('*LinuxCNC Rocks*')
         self.Text = Entry(self.EntryFrame, textvariable=self.TextVar ,width=40)
         self.Text.grid(row=3, column=1)
 

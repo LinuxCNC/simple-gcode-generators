@@ -28,8 +28,8 @@ the command python YourPathToThisFile/face.py
 make sure you have made the file execuatble by right
 clicking and selecting properties then Permissions and Execute
 
-To use with EMC2 see the instructions at: 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Simple_EMC_G-Code_Generators
+To use with LinuxCNC see the instructions at: 
+https://github.com/linuxcnc/simple-gcode-generators
 
 Inspired by Sebastian Jardi Estadella's addition to send the output to gEdit
 I've decided to incorporate it into Arc Buddy and make some additions that
