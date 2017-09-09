@@ -424,8 +424,13 @@ xy_profil_name_show_entry = Entry(top_text,textvariable=xy_profil_name,
     justify=CENTER,state=DISABLED,width=15)
 xy_profil_name_show_entry.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
 
-xy_profil_listbox = Listbox(top_text,selectmode=SINGLE,width=15,height=2)
-xy_profil_listbox.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
+xy_profil_frame = Frame(top_text)
+xy_profil_frame.pack(side=LEFT,fill=Y)
+xy_profil_scrollbar = Scrollbar(xy_profil_frame, orient=VERTICAL)
+xy_profil_listbox = Listbox(xy_profil_frame, selectmode=SINGLE, yscrollcommand=xy_profil_scrollbar.set, width=15,height=2)
+xy_profil_scrollbar.config(command=xy_profil_listbox.yview)
+xy_profil_scrollbar.pack(side=RIGHT, fill=Y)
+xy_profil_listbox.pack(side=LEFT, fill=BOTH, ipadx=3,ipady=5,padx=1,pady=10)
 profilenames= get_profilenames()
 xy_index,index = 0,0
 for item in profilenames:
@@ -469,7 +474,12 @@ uv_profil_name_show_entry = Entry(uv_lable,textvariable=uv_profil_name,
     justify=CENTER,state=DISABLED,width=15)
 uv_profil_name_show_entry.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
 
-uv_profil_listbox = Listbox(uv_lable,selectmode=SINGLE,bg="black",width=15,height=2)
+uv_profil_frame = Frame(uv_lable)
+uv_profil_frame.pack(side=LEFT,fill=Y)
+uv_profil_scrollbar = Scrollbar(uv_profil_frame, orient=VERTICAL)
+uv_profil_listbox = Listbox(uv_profil_frame,selectmode=SINGLE,yscrollcommand=uv_profil_scrollbar.set,bg="black",width=15,height=2)
+uv_profil_scrollbar.config(command=uv_profil_listbox.yview)
+uv_profil_scrollbar.pack(side=RIGHT, fill=Y)
 uv_profil_listbox.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
 profilenames = get_profilenames()
 uv_index,index = 0,0
