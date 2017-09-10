@@ -41,7 +41,7 @@ def programm_schliesen():
     root.destroy()
 def file_save():
     global g_code_code
-    file_save = tkFileDialog.asksaveasfilename(title="NC-g_code-DATEI", \
+    file_save = tkFileDialog.asksaveasfilename(title="NC-g_code-DATA", \
     filetypes=[("LinuxCNC file",".ngc"),("NCFRS file",".nc"),("NC TAP",".tap"),\
     ("txt file",".txt"),("All files",".*")],initialfile="g_code",initialdir="/home/sammel/xyuv-foam/nc_files")
     fobj = open(file_save, "w") 
@@ -58,7 +58,7 @@ def info():
     info_label_text.config(text='   Just Hit the profile entry in the list    ' )
     info_label_text.update()    
     sleep(1)
-    info_label_text.config(text=' and SAVE via File Menue the G-code   ' )
+    info_label_text.config(text=' and SAVE via File Menu the G-code   ' )
     info_label_text.update()    
     
 def get_profilenames():
@@ -122,7 +122,7 @@ def draw_on_xy_canvas(data):
     g_code.append("G17.1 G21 G54 G90 G40 G80 G64 P0.05 \n")
     
     xy_profile_draw.delete(ALL)
-    xy_profile_draw.create_text((120,15), text="XY PROFIL %s "% xy_profil_name.get() ,font=('courier', 12, 'bold'))
+    xy_profile_draw.create_text((120,15), text="XY PROFILE %s "% xy_profil_name.get() ,font=('courier', 12, 'bold'))
     calculation_canvas.delete("xy")
     for line in data:
         linesplit=line.split()
@@ -228,20 +228,24 @@ def uv_profil_listbox_action(event):
 def add_uv_plane():
     global uv_plane_activated
     if uv_plane_activated:
-        uv_plane_activated=False
+        uv_plane_activated = False
+        uv_profil_search.config(bg='black')
         uv_profil_listbox.config(bg="black",selectbackground="black")
         uv_profil_name_show_entry.config(disabledbackground="black")
         uv_profile_width_entry.config(bg="black")   
         uv_profile_offset_x_entry.config(bg="black")
         uv_profile_offset_y_entry.config(bg="black")
+        button_add_uv_plane.config(text='Add UV Plane')
     else:
         uv_plane_activated = True
+        uv_profil_search.config(bg='white')
         uv_profil_listbox.config(bg="white",selectbackground="lightgray")
         uv_profil_listbox.see(uv_index)
         uv_profil_name_show_entry.config(disabledbackground="white")
         uv_profile_width_entry.config(bg="white")   
         uv_profile_offset_x_entry.config(bg="white")
         uv_profile_offset_y_entry.config(bg="white")
+        button_add_uv_plane.config(text='Remove UV Plane')
     uv_profil_listbox.select_set(first=1166, last=None)
     uv_profil_listbox_action(uv_index)
 
@@ -384,6 +388,26 @@ def generate():
         gcode_show_text.insert(END,line)
     gcode_show_text.config(state=DISABLED)
 
+def update_xy_profile_list():
+    search = xy_profil_search.get()
+
+    airfoils = get_profilenames()
+    xy_profil_listbox.delete(0, END)
+    for item in airfoils:
+        p=item.split('.')
+        if search.lower() in item.lower():
+            xy_profil_listbox.insert(END, p[0])
+
+def update_uv_profile_list():
+    search = uv_profil_search.get()
+
+    airfoils = get_profilenames()
+    uv_profil_listbox.delete(0, END)
+    for item in airfoils:
+        p=item.split('.')
+        if search.lower() in item.lower():
+            uv_profil_listbox.insert(END, p[0])
+
 root = Tk()
 root.geometry("1080x1000")
 # create a menu
@@ -426,6 +450,10 @@ xy_profil_name_show_entry.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
 
 xy_profil_frame = Frame(top_text)
 xy_profil_frame.pack(side=LEFT,fill=Y)
+xy_profil_search_var = StringVar()
+xy_profil_search_var.trace("w", lambda name, index, mode: update_xy_profile_list())
+xy_profil_search = Entry(xy_profil_frame, textvariable=xy_profil_search_var, width=15)
+xy_profil_search.pack(side=TOP, fill=X)
 xy_profil_scrollbar = Scrollbar(xy_profil_frame, orient=VERTICAL)
 xy_profil_listbox = Listbox(xy_profil_frame, selectmode=SINGLE, yscrollcommand=xy_profil_scrollbar.set, width=15,height=2)
 xy_profil_scrollbar.config(command=xy_profil_listbox.yview)
@@ -443,7 +471,7 @@ xy_profil_listbox.see(xy_index)
 xy_profil_listbox.select_set(first=1166, last=None)
 xy_profil_listbox.bind("<Double-Button-1>", xy_profil_listbox_action)
 
-text_xy_profile_width = Label(top_text,text='XY Profil-Breite',bg='red',fg='black')
+text_xy_profile_width = Label(top_text,text='XY Profile Width',bg='red',fg='black')
 text_xy_profile_width.pack(side=LEFT,ipadx=1,ipady=5,padx=1,pady=10)
 
 xy_profile_width = IntVar()
@@ -476,6 +504,10 @@ uv_profil_name_show_entry.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
 
 uv_profil_frame = Frame(uv_lable)
 uv_profil_frame.pack(side=LEFT,fill=Y)
+uv_profil_search_var = StringVar()
+uv_profil_search_var.trace("w", lambda name, index, mode: update_xy_profile_list())
+uv_profil_search = Entry(uv_profil_frame, textvariable=uv_profil_search_var, bg='black', width=15)
+uv_profil_search.pack(side=TOP, fill=X)
 uv_profil_scrollbar = Scrollbar(uv_profil_frame, orient=VERTICAL)
 uv_profil_listbox = Listbox(uv_profil_frame,selectmode=SINGLE,yscrollcommand=uv_profil_scrollbar.set,bg="black",width=15,height=2)
 uv_profil_scrollbar.config(command=uv_profil_listbox.yview)
@@ -493,7 +525,7 @@ uv_profil_listbox.selection_set(uv_index)
 uv_profil_listbox.see(uv_index+5)
 uv_profil_listbox.bind("<Double-Button-1>", uv_profil_listbox_action)
 
-text_uv_profile_width = Label(uv_lable,text='UV Profil-Breite',bg='red',fg='black')
+text_uv_profile_width = Label(uv_lable,text='UV Profile Width',bg='red',fg='black')
 text_uv_profile_width.pack(side=LEFT,ipadx=1,ipady=5,padx=1,pady=10)
 
 uv_profile_width = IntVar()
@@ -523,7 +555,7 @@ xy_profile_draw.pack(side=LEFT)
 
 uv_profile_draw = Canvas(draw_lable, width=510, height=300)
 uv_profile_draw.pack()
-uv_profile_draw.create_text((250,100), text="UV PROFIL",font=('courier', 40, 'bold'))
+uv_profile_draw.create_text((250,100), text="UV PROFILE",font=('courier', 40, 'bold'))
 
 calculation_canvas = Canvas(calculation_lable, width=1000, height=400,state=NORMAL,bg="white")
 calculation_canvas.pack()
