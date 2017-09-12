@@ -163,7 +163,7 @@ def draw_on_uv_canvas(data):
     g_code_scale= xy_profile_width.get()
     uv_profile_draw.delete(ALL)
     calculation_canvas.delete("uv")
-    uv_profile_draw.create_text((120,15), text="UV PROFIL %s"% uv_profil_name.get() ,font=('courier', 12, 'bold'))
+    uv_profile_draw.create_text((120,15), text="UV PROFILE %s"% uv_profil_name.get() ,font=('courier', 12, 'bold'))
     if uv_plane_activated:
         for line in data:
             linesplit=line.split()
@@ -183,7 +183,7 @@ def draw_on_uv_canvas(data):
             first=False
     else:
         uv_profile_draw.delete(ALL)
-        uv_profile_draw.create_text((250,100), text="UV PROFIL",font=('courier', 40, 'bold'))
+        uv_profile_draw.create_text((250,100), text="UV PROFILE",font=('courier', 40, 'bold'))
         
 def xy_profil_listbox_action(event):
     xy_index = xy_profil_listbox.curselection()
@@ -505,7 +505,7 @@ uv_profil_name_show_entry.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
 uv_profil_frame = Frame(uv_lable)
 uv_profil_frame.pack(side=LEFT,fill=Y)
 uv_profil_search_var = StringVar()
-uv_profil_search_var.trace("w", lambda name, index, mode: update_xy_profile_list())
+uv_profil_search_var.trace("w", lambda name, index, mode: update_uv_profile_list())
 uv_profil_search = Entry(uv_profil_frame, textvariable=uv_profil_search_var, bg='black', width=15)
 uv_profil_search.pack(side=TOP, fill=X)
 uv_profil_scrollbar = Scrollbar(uv_profil_frame, orient=VERTICAL)
