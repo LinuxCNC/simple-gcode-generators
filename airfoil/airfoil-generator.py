@@ -134,7 +134,10 @@ def draw_on_xy_canvas(data):
         y_coord =int(float(linesplit[1])*Factor)+y_zero
         x_gcode =float(linesplit[0])*g_code_scale
         y_gcode =float(linesplit[1])*g_code_scale
-        gcode_line= "G1 X%.3f Y%.3f \n"%(x_gcode,y_gcode)
+        if not first:
+            gcode_line= "G1 X%.3f Y%.3f \n"%(x_gcode,y_gcode)
+        else:
+            gcode_line= "G1 X%.3f Y%.3f F%.3d \n"%(x_gcode,y_gcode,feed.get())
         g_code.append(gcode_line)
         if not first:
             xy_profile_draw.create_line(x_old_coord,y_old_coord,x_coord,y_coord,
@@ -321,9 +324,9 @@ def generate():
             g_code.append("(profile XY %s  profile UV %s )\n"
             %(xy_profil_name.get(),uv_profil_name.get()))
             g_code.append("(!!!! Pointdifferens !!!!)\n")
-            g_code.append("(PLEASE EDIT Point to Point Manuell )\n")
+            g_code.append("(PLEASE EDIT Point to Point Manually )\n")
             g_code.append("( TO keep the profile SHAPE)\n")
-            g_code.append("(XY Points %d  UV points %d ,Differnce %d )\n"
+            g_code.append("(XY Points %d  UV points %d ,Difference %d )\n"
             %(len(xy_point_data),len(uv_point_data),whats_the_different))
             g_code.append("(test on xyuv FOAM or 9Axis Linuxcnc sim )\n")
             g_code.append("(AXIS,XY_Z_POS,5)\n")
@@ -338,6 +341,7 @@ def generate():
                 runto=len(uv_point_data)
                 max_run= len(xy_point_data)
                 larger_pointlist= "xy"
+            firstrun=True
             for a in range(0,runto):
                 xy_linesplit = xy_point_data[a].split()
                 uv_linesplit = uv_point_data[a].split()
@@ -345,8 +349,12 @@ def generate():
                 y_gcode =float(xy_linesplit[1])*xy_profile_width.get()
                 u_gcode =(float(uv_linesplit[0])*uv_profile_width.get())+uv_profile_offset_x.get()
                 v_gcode =(float(uv_linesplit[1])*uv_profile_width.get())+uv_profile_offset_y.get()
-                gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f \n"%(x_gcode,y_gcode,u_gcode,v_gcode)
+                if not firstrun:
+                    gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f \n"%(x_gcode,y_gcode,u_gcode,v_gcode)
+                else:
+                    gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f F%.3d \n"%(x_gcode,y_gcode,u_gcode,v_gcode,feed.get())
                 g_code.append(gcode_line)
+                firstrun=False
             for a in range(runto,max_run):
                 if larger_pointlist == "xy":
                     linesplit = xy_point_data[a].split()
@@ -372,6 +380,7 @@ def generate():
         g_code.append("(AXIS,UV_Z_POS,30)\n")
         g_code.append("(AXIS,GRID,5) \n")
         g_code.append("G17 G21 G54 G90 G40 G80 G64 P0.05 \n")
+        firstrun=True
         for a in range(0,len(xy_point_data)):
             xy_linesplit = xy_point_data[a].split()
             uv_linesplit = uv_point_data[a].split()
@@ -379,7 +388,11 @@ def generate():
             y_gcode =float(xy_linesplit[1])*xy_profile_width.get()
             u_gcode =(float(uv_linesplit[0])*uv_profile_width.get())+uv_profile_offset_x.get()
             v_gcode =(float(uv_linesplit[1])*uv_profile_width.get())+uv_profile_offset_y.get()
-            gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f \n"%(x_gcode,y_gcode,u_gcode,v_gcode)
+            if not firstrun:
+                gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f \n"%(x_gcode,y_gcode,u_gcode,v_gcode)
+            else:
+                gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f F%.3d \n"%(x_gcode,y_gcode,u_gcode,v_gcode,feed.get())
+            firstrun=False
             g_code.append(gcode_line)
         g_code.append("M30 \n")
     gcode_show_text.config(state=NORMAL,font=('courier', 12, 'normal'))
