@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-version = '1.4.0'
+version = '1.5.0'
 # python face.py
 # Dec 4 2007
 # Face G-Code Generator for LinuxCNC
@@ -42,6 +42,11 @@ version = '1.4.0'
 2012-07-13 John Thornton
   Added graceful exit from face.py if opened in Axis
 
+2018-12-30 Aglef Kaiser
+	Added load and save preferences (all attributes). The default NC File directory
+	is the home directory. After saving a gcode file, this directory is the new
+	NC File directory and can be saved with save preferences.
+	Added safe z hight.
 """
 from Tkinter import *
 from tkFileDialog import *
@@ -60,7 +65,9 @@ class Application(Frame):
         self.grid()
         self.createMenu()
         self.createWidgets()
-        
+	self.LoadPrefs()
+
+
     def createMenu(self):
         #Create the Menu base
         self.menu = Menu(self)
@@ -82,8 +89,8 @@ class Application(Frame):
         self.EditMenu.add_command(label='Select All', command=self.SelectAllText)
         self.EditMenu.add_command(label='Delete All', command=self.ClearTextBox)
         self.EditMenu.add_separator()
-        self.EditMenu.add_command(label='Preferences', command=self.Simple)
-        self.EditMenu.add_command(label='NC Directory', command=self.NcFileDirectory)
+        self.EditMenu.add_command(label='Save Preferences', command=self.SavePrefs)
+        self.EditMenu.add_command(label='Load Preferences', command=self.LoadPrefs)
         
         self.HelpMenu = Menu(self.menu)
         self.menu.add_cascade(label='Help', menu=self.HelpMenu)
@@ -95,14 +102,14 @@ class Application(Frame):
         self.sp1 = Label(self)
         self.sp1.grid(row=0)
         
-        self.st1 = Label(self, text='Part Length X ')
+        self.st1 = Label(self, text='Part Length X *')
         self.st1.grid(row=1, column=0, sticky=E)
         self.PartLengthVar = StringVar()
         self.PartLength = Entry(self, width=10, textvariable=self.PartLengthVar)
         self.PartLength.grid(row=1, column=1, sticky=W)
         self.PartLength.focus_set()
 
-        self.st2 = Label(self, text='Part Width Y ')
+        self.st2 = Label(self, text='Part Width Y *')
         self.st2.grid(row=2, column=0, sticky=E)
         self.PartWidthVar = StringVar()
         self.PartWidth = Entry(self, width=10, textvariable=self.PartWidthVar)
@@ -114,7 +121,7 @@ class Application(Frame):
         self.DepthOfCut = Entry(self, width=10, textvariable=self.DepthOfCutVar)
         self.DepthOfCut.grid(row=3, column=1, sticky=W)
 
-        self.st5 = Label(self, text='Amount to Remove ')
+        self.st5 = Label(self, text='Amount to Remove *')
         self.st5.grid(row=4, column=0, sticky=E)
         self.TotalToRemoveVar = StringVar()
         self.TotalToRemove = Entry(self, width=10, textvariable=self.TotalToRemoveVar)
@@ -144,6 +151,12 @@ class Application(Frame):
         self.StepOverVar = StringVar()
         self.StepOver = Entry(self, width=10, textvariable=self.StepOverVar)
         self.StepOver.grid(row=4, column=3, sticky=W)
+        
+        self.st10 = Label(self, text='Safe Z hight')
+        self.st10.grid(row=5, column=0, sticky=E)
+        self.SafeZVar = StringVar()
+        self.Leadin = Entry(self, width=10, textvariable=self.SafeZVar)
+        self.Leadin.grid(row=5, column=1, sticky=W)
         
         self.st8 = Label(self, text='Lead In / Lead Out')
         self.st8.grid(row=5, column=2, sticky=E)
@@ -215,6 +228,9 @@ class Application(Frame):
         """ Generate the G-Code for facing a part 
         assume that the part is at X0 to X+, Y0 to Y-"""
         D=Decimal
+	z=float(self.SafeZVar.get())
+	print(z)
+	print(self.SafeZVar.get())
         # Calculate the start position 1/2 the tool diameter + 0.100 in X and Stepover in Y
         self.ToolRadius = self.FToD(self.ToolDiameterVar.get())/2
         if len(self.LeadinVar.get())>0:
@@ -258,8 +274,8 @@ class Application(Frame):
         if len(self.FeedrateVar.get())>0:
             self.g_code.insert(END, 'F%s\n' % (self.FeedrateVar.get()))
         for i in range(self.NumOfZSteps):
-            self.g_code.insert(END, 'G0 X%.4f Y%.4f\nZ0.1000\n' \
-                %(self.X_Start, self.Y_Start))
+            self.g_code.insert(END, 'G0 X%.4f Y%.4f\nZ%.4f\n' \
+                %(self.X_Start, self.Y_Start,z))
             # Make sure the Z position does not exceed the total depth
             if self.Z_Step>0 and (self.Z_Total+self.Z_Position) >= self.Z_Step:
                 self.Z_Position = self.Z_Position - self.Z_Step
@@ -286,7 +302,7 @@ class Application(Frame):
                 else:
                     if self.Y_Position < self.Y_End:
                         self.g_code.insert(END, 'G0 Y%.4f\n' % (self.Y_Position))
-        self.g_code.insert(END, 'G0 Z0.1000\n')
+        self.g_code.insert(END, 'G0 Z%.4f\n'% z)
         if len(self.SpindleRPMVar.get())>0:
             self.g_code.insert(END, 'M5\n')
         self.g_code.insert(END, 'G0 X0.0000 Y0.0000\nM2 (End of File)\n')
@@ -311,7 +327,7 @@ class Application(Frame):
             return D(D(n)/D(d)).quantize(P)
         return D(s).quantize(P) # if it is a decimal number already
 
-    def GetIniData(self,FileName,SectionName,OptionName):
+    def GetIniData(self,FileName,SectionName,OptionName,default=''):
         """
         Returns the data in the file, section, option if it exists
         of an .ini type file created with ConfigParser.write()
@@ -325,12 +341,12 @@ class Application(Frame):
                 self.cp.has_section(SectionName)
                 try:
                     IniData=self.cp.get(SectionName,OptionName)
-                except ConfigParser.NoOptionError:
-                    raise Exception,'NoOptionError'
-            except ConfigParser.NoSectionError:
-                raise Exception,'NoSectionError'
-        except IOError:
-            raise Exception,'NoFileError'
+                except:
+                    IniData=default
+            except:
+                IniData=default
+        except:
+            IniData=default
         return IniData
         
     def WriteIniData(self,FileName,SectionName,OptionName,OptionData):
@@ -358,7 +374,7 @@ class Application(Frame):
         self.g_code.clipboard_clear()
         self.g_code.clipboard_append(self.g_code.get(0.0, END))
 
-    def WriteToFile(self):
+    def WriteToFile_(self):
         try:
             self.NcDir = self.GetIniData('face.ini','Directories','NcFiles')
             self.NewFileName = asksaveasfile(initialdir=self.NcDir,mode='w', \
@@ -372,11 +388,54 @@ class Application(Frame):
                 'Go to Edit/NC Directory\n' \
                 'in the menu to set this option')            
 
-    def NcFileDirectory(self):
-        DirName = self.GetDirectory()
-        if len(DirName)>0:
-            self.WriteIniData('face.ini','Directories','NcFiles',DirName)
+    def WriteToFile(self):
+	self.NewFileName = asksaveasfile(initialdir=self.NcDir,mode='w', \
+		master=self.master,title='Create NC File',defaultextension='.ngc')
+	self.NcDir=os.path.dirname(self.NewFileName.name)
+	self.NewFileName.write(self.g_code.get(0.0, END))
+    	self.NewFileName.close()
 
+    def LoadPrefs(self):
+	self.NcDir=self.GetIniData('face.ini','Directories','NcFiles',os.path.expanduser("~"))
+	self.FeedrateVar.set(self.GetIniData('face.ini','MillingPara','Feedrate','1000'))
+	self.DepthOfCutVar.set(self.GetIniData('face.ini','MillingPara','DepthOfCut','3'))
+	self.ToolDiameterVar.set(self.GetIniData('face.ini','MillingPara','ToolDiameter','10'))
+	self.SpindleRPMVar.set(self.GetIniData('face.ini','MillingPara','SpindleRPM','9000'))
+	self.StepOverVar.set(self.GetIniData('face.ini','MillingPara','StepOver','50'))
+	self.LeadinVar.set(self.GetIniData('face.ini','MillingPara','Leadin'))
+	self.UnitVar.set(int(self.GetIniData('face.ini','MillingPara','UnitVar','2')))
+	self.HomeVar.set(int(self.GetIniData('face.ini','MillingPara','HomeVar','4')))
+	self.SafeZVar.set(self.GetIniData('face.ini','MillingPara','SafeZ','10.0'))
+	self.PartLengthVar.set(self.GetIniData('face.ini','Part','X'))
+	self.PartWidthVar.set(self.GetIniData('face.ini','Part','Y'))
+	self.TotalToRemoveVar.set(self.GetIniData('face.ini','Part','TotalToRemove'))
+
+
+    def SavePrefs(self):
+	def set_pref(SectionName,OptionName,OptionData):
+		if not self.cp.has_section(SectionName):
+        		self.cp.add_section(SectionName)
+        	self.cp.set(SectionName,OptionName,OptionData)
+
+        self.cp=ConfigParser()
+	#if os.path.isfile('face.ini'):
+        self.fn=open('face.ini','w')
+	set_pref('Directories','NcFiles',self.NcDir)
+	set_pref('MillingPara','Feedrate',self.FeedrateVar.get())
+	set_pref('MillingPara','DepthOfCut',self.DepthOfCutVar.get())
+	set_pref('MillingPara','ToolDiameter',self.ToolDiameterVar.get())
+	set_pref('MillingPara','SpindleRPM',self.SpindleRPMVar.get())
+	set_pref('MillingPara','StepOver',self.StepOverVar.get())
+	set_pref('MillingPara','Leadin',self.LeadinVar.get())
+	set_pref('MillingPara','UnitVar',self.UnitVar.get())
+	set_pref('MillingPara','HomeVar',self.HomeVar.get())
+	set_pref('MillingPara','SafeZ',self.SafeZVar.get())
+	set_pref('Part','X',self.PartLengthVar.get())
+	set_pref('Part','Y',self.PartWidthVar.get())
+	set_pref('Part','TotalToRemove',self.TotalToRemoveVar.get())
+        self.cp.write(self.fn)
+        self.fn.close()
+	
     def Simple(self):
         tkMessageBox.showinfo('Feature', 'Sorry this Feature has\nnot been programmed yet.')
 
