@@ -65,7 +65,7 @@ class Application(Frame):
         self.grid()
         self.createMenu()
         self.createWidgets()
-	self.LoadPrefs()
+        self.LoadPrefs()
 
 
     def createMenu(self):
@@ -78,7 +78,7 @@ class Application(Frame):
         #Add our Menu to the Base Menu
         self.menu.add_cascade(label='File', menu=self.FileMenu)
         #Add items to the menu
-        self.FileMenu.add_command(label='New', command=self.Simple)
+        self.FileMenu.add_command(label='New', command=self.New)
         self.FileMenu.add_command(label='Open', command=self.Simple)
         self.FileMenu.add_separator()
         self.FileMenu.add_command(label='Quit', command=self.quit)
@@ -228,7 +228,7 @@ class Application(Frame):
         """ Generate the G-Code for facing a part 
         assume that the part is at X0 to X+, Y0 to Y-"""
         D=Decimal
-	z=float(self.SafeZVar.get())
+        z=float(self.SafeZVar.get())
         # Calculate the start position 1/2 the tool diameter + 0.100 in X and Stepover in Y
         self.ToolRadius = self.FToD(self.ToolDiameterVar.get())/2
         if len(self.LeadinVar.get())>0:
@@ -242,11 +242,11 @@ class Application(Frame):
                 * self.FToD(self.StepOverVar.get())/100)
         else:
             self.Y_StepOver = self.FToD(self.ToolDiameterVar.get())*D('.75')
-	if self.HomeVar.get()==4:
+        if self.HomeVar.get()==4:
         	self.Y_Start = (self.ToolRadius - self.Y_StepOver)
         	self.Y_End = -(self.FToD(self.PartWidthVar.get())-\
             		(self.ToolRadius - self.Y_StepOver))+D('.1')
-	else:
+        else:
         	self.Y_Start = -(self.ToolRadius - self.Y_StepOver)
         	self.Y_End = (self.FToD(self.PartWidthVar.get())+\
             		(self.ToolRadius + self.Y_StepOver))+D('.1')
@@ -373,55 +373,56 @@ class Application(Frame):
         self.g_code.clipboard_append(self.g_code.get(0.0, END))
 
     def WriteToFile(self):
-	self.NewFileName = asksaveasfile(initialdir=self.NcDir,mode='w', \
+        self.NewFileName = asksaveasfile(initialdir=self.NcDir,mode='w', \
 		master=self.master,title='Create NC File',defaultextension='.ngc')
-	self.NcDir=os.path.dirname(self.NewFileName.name)
-	self.NewFileName.write(self.g_code.get(0.0, END))
-    	self.NewFileName.close()
+        self.NcDir=os.path.dirname(self.NewFileName.name)
+        self.NewFileName.write(self.g_code.get(0.0, END))
+        self.NewFileName.close()
 
     def LoadPrefs(self):
-	self.NcDir=self.GetIniData('face.ini','Directories','NcFiles',os.path.expanduser("~"))
-	self.FeedrateVar.set(self.GetIniData('face.ini','MillingPara','Feedrate','1000'))
-	self.DepthOfCutVar.set(self.GetIniData('face.ini','MillingPara','DepthOfCut','3'))
-	self.ToolDiameterVar.set(self.GetIniData('face.ini','MillingPara','ToolDiameter','10'))
-	self.SpindleRPMVar.set(self.GetIniData('face.ini','MillingPara','SpindleRPM','9000'))
-	self.StepOverVar.set(self.GetIniData('face.ini','MillingPara','StepOver','50'))
-	self.LeadinVar.set(self.GetIniData('face.ini','MillingPara','Leadin'))
-	self.UnitVar.set(int(self.GetIniData('face.ini','MillingPara','UnitVar','2')))
-	self.HomeVar.set(int(self.GetIniData('face.ini','MillingPara','HomeVar','4')))
-	self.SafeZVar.set(self.GetIniData('face.ini','MillingPara','SafeZ','10.0'))
-	self.PartLengthVar.set(self.GetIniData('face.ini','Part','X'))
-	self.PartWidthVar.set(self.GetIniData('face.ini','Part','Y'))
-	self.TotalToRemoveVar.set(self.GetIniData('face.ini','Part','TotalToRemove'))
+        self.NcDir=self.GetIniData('face.ini','Directories','NcFiles',os.path.expanduser("~"))
+        self.FeedrateVar.set(self.GetIniData('face.ini','MillingPara','Feedrate','1000'))
+        self.DepthOfCutVar.set(self.GetIniData('face.ini','MillingPara','DepthOfCut','3'))
+        self.ToolDiameterVar.set(self.GetIniData('face.ini','MillingPara','ToolDiameter','10'))
+        self.SpindleRPMVar.set(self.GetIniData('face.ini','MillingPara','SpindleRPM','9000'))
+        self.StepOverVar.set(self.GetIniData('face.ini','MillingPara','StepOver','50'))
+        self.LeadinVar.set(self.GetIniData('face.ini','MillingPara','Leadin'))
+        self.UnitVar.set(int(self.GetIniData('face.ini','MillingPara','UnitVar','2')))
+        self.HomeVar.set(int(self.GetIniData('face.ini','MillingPara','HomeVar','4')))
+        self.SafeZVar.set(self.GetIniData('face.ini','MillingPara','SafeZ','10.0'))
+        self.PartLengthVar.set(self.GetIniData('face.ini','Part','X'))
+        self.PartWidthVar.set(self.GetIniData('face.ini','Part','Y'))
+        self.TotalToRemoveVar.set(self.GetIniData('face.ini','Part','TotalToRemove'))
 
 
     def SavePrefs(self):
-	def set_pref(SectionName,OptionName,OptionData):
-		if not self.cp.has_section(SectionName):
-        		self.cp.add_section(SectionName)
-        	self.cp.set(SectionName,OptionName,OptionData)
-
+        def set_pref(SectionName,OptionName,OptionData):
+            if not self.cp.has_section(SectionName):
+                self.cp.add_section(SectionName)
+            self.cp.set(SectionName,OptionName,OptionData)
         self.cp=ConfigParser()
-	#if os.path.isfile('face.ini'):
         self.fn=open('face.ini','w')
-	set_pref('Directories','NcFiles',self.NcDir)
-	set_pref('MillingPara','Feedrate',self.FeedrateVar.get())
-	set_pref('MillingPara','DepthOfCut',self.DepthOfCutVar.get())
-	set_pref('MillingPara','ToolDiameter',self.ToolDiameterVar.get())
-	set_pref('MillingPara','SpindleRPM',self.SpindleRPMVar.get())
-	set_pref('MillingPara','StepOver',self.StepOverVar.get())
-	set_pref('MillingPara','Leadin',self.LeadinVar.get())
-	set_pref('MillingPara','UnitVar',self.UnitVar.get())
-	set_pref('MillingPara','HomeVar',self.HomeVar.get())
-	set_pref('MillingPara','SafeZ',self.SafeZVar.get())
-	set_pref('Part','X',self.PartLengthVar.get())
-	set_pref('Part','Y',self.PartWidthVar.get())
-	set_pref('Part','TotalToRemove',self.TotalToRemoveVar.get())
+        set_pref('Directories','NcFiles',self.NcDir)
+        set_pref('MillingPara','Feedrate',self.FeedrateVar.get())
+        set_pref('MillingPara','DepthOfCut',self.DepthOfCutVar.get())
+        set_pref('MillingPara','ToolDiameter',self.ToolDiameterVar.get())
+        set_pref('MillingPara','SpindleRPM',self.SpindleRPMVar.get())
+        set_pref('MillingPara','StepOver',self.StepOverVar.get())
+        set_pref('MillingPara','Leadin',self.LeadinVar.get())
+        set_pref('MillingPara','UnitVar',self.UnitVar.get())
+        set_pref('MillingPara','HomeVar',self.HomeVar.get())
+        set_pref('MillingPara','SafeZ',self.SafeZVar.get())
+        set_pref('Part','X',self.PartLengthVar.get())
+        set_pref('Part','Y',self.PartWidthVar.get())
+        set_pref('Part','TotalToRemove',self.TotalToRemoveVar.get())
         self.cp.write(self.fn)
         self.fn.close()
 	
     def Simple(self):
         tkMessageBox.showinfo('Feature', 'Sorry this Feature has\nnot been programmed yet.')
+
+    def New(self):
+        self.g_code.delete(1.0, END)
 
     def ClearTextBox(self):
         self.g_code.delete(1.0,END)
@@ -448,6 +449,7 @@ class Application(Frame):
             'Big John T (AKA John Thornton)\n'
             'Rick Calder\n'
             'Brad Hanken\n'
+            'Aglef Kaiser\n'
             'Version ' + version)
 
 
