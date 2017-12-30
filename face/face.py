@@ -229,8 +229,6 @@ class Application(Frame):
         assume that the part is at X0 to X+, Y0 to Y-"""
         D=Decimal
 	z=float(self.SafeZVar.get())
-	print(z)
-	print(self.SafeZVar.get())
         # Calculate the start position 1/2 the tool diameter + 0.100 in X and Stepover in Y
         self.ToolRadius = self.FToD(self.ToolDiameterVar.get())/2
         if len(self.LeadinVar.get())>0:
