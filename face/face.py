@@ -374,20 +374,6 @@ class Application(Frame):
         self.g_code.clipboard_clear()
         self.g_code.clipboard_append(self.g_code.get(0.0, END))
 
-    def WriteToFile_(self):
-        try:
-            self.NcDir = self.GetIniData('face.ini','Directories','NcFiles')
-            self.NewFileName = asksaveasfile(initialdir=self.NcDir,mode='w', \
-                master=self.master,title='Create NC File',defaultextension='.ngc')
-            self.NewFileName.write(self.g_code.get(0.0, END))
-            self.NewFileName.close()
-        except:
-            tkMessageBox.showinfo('Missing INI', 'You must set the\n' \
-                'NC File Directory\n' \
-                'before saving a file.\n' \
-                'Go to Edit/NC Directory\n' \
-                'in the menu to set this option')            
-
     def WriteToFile(self):
 	self.NewFileName = asksaveasfile(initialdir=self.NcDir,mode='w', \
 		master=self.master,title='Create NC File',defaultextension='.ngc')
