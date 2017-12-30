@@ -78,7 +78,7 @@ class Application(Frame):
         #Add our Menu to the Base Menu
         self.menu.add_cascade(label='File', menu=self.FileMenu)
         #Add items to the menu
-        self.FileMenu.add_command(label='New', command=self.New)
+        self.FileMenu.add_command(label='New', command=self.ClearTextBox)
         self.FileMenu.add_command(label='Open', command=self.Simple)
         self.FileMenu.add_separator()
         self.FileMenu.add_command(label='Quit', command=self.quit)
@@ -420,9 +420,6 @@ class Application(Frame):
 	
     def Simple(self):
         tkMessageBox.showinfo('Feature', 'Sorry this Feature has\nnot been programmed yet.')
-
-    def New(self):
-        self.g_code.delete(1.0, END)
 
     def ClearTextBox(self):
         self.g_code.delete(1.0,END)
