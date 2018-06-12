@@ -42,6 +42,7 @@ import glob
 version = '1.0'
 fontPath = os.path.dirname(os.path.realpath(__file__))+'/cxf-fonts/'
 fontList = [os.path.basename(x) for x in glob.glob(fontPath + '*.cxf')]
+fontList = sorted(fontList)
 fontfile = ''
 
 IN_AXIS = os.environ.has_key("AXIS_PROGRESS_BAR")
