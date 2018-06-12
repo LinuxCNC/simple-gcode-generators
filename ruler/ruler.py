@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """
-    ruler-01.py G-Code Generator
-    Version 0.1
+    ruler-xx.py G-Code Generator
+ 
 	Copyright (C) <2018> <Andrew Williams> <linuxras at gmail dot com>
 	based on bazel-11.py and engrave.py -- Thanks for a great example Lawrence!
     Copyright (C) <2008>  <Lawrence Glaister> <ve7it at shaw dot ca>
