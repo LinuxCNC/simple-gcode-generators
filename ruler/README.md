@@ -1,7 +1,7 @@
 Ruler Engraving Software
 ========================
 
-**Author:** AndreW Williams
+**Author:** Andrew Williams
 
 **Download:** 
 * [ruler.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/ruler/ruler.py)
