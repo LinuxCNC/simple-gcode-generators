@@ -366,7 +366,7 @@ class Application(Frame):
         MEvery   = float(self.MajorStripeEveryVar.get())
         HEvery   = float(MEvery / 2)
         BaseL    = int(self.BaselineVar.get())
-        NumTicks = int(Length / Every) #int(self.RulerStripesEveryVar.get())
+        NumTicks = int((Length / Every)+1) 
         Scale    = MajorSL * 2.0 * 1.2 / 300.0          # nominal inches(mm) / pixel for plotting
         Angle    = 0.0
         XScale   = 0.04
