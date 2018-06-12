@@ -37,10 +37,14 @@ from math import *
 import tkFileDialog
 import os
 import re
+import glob
 
 version = '1.0'
+fontPath = os.path.dirname(os.path.realpath(__file__))+'/cxf-fonts/'
+fontList = [os.path.basename(x) for x in glob.glob(fontPath + '*.cxf')]
+fontfile = ''
+
 IN_AXIS = os.environ.has_key("AXIS_PROGRESS_BAR")
-fontfile = "cxf-fonts/romanc.cxf"
 
 #=======================================================================
 # parse function borrowed from engrave.py
@@ -274,16 +278,13 @@ class Application(Frame):
         self.Postamble = Entry(self.EntryFrame, textvariable=self.PostambleVar ,width=15)
         self.Postamble.grid(row=13, column=1)
 
-        self.st14 = Label(self.EntryFrame, text='Label Font (Qcad .cxf)')
+        self.st14 = Label(self.EntryFrame, text='Label Font')
         self.st14.grid(row=14, column=0)
         self.FontVar = StringVar()
-        self.FontVar.set(fontfile)
-        self.ChooserFrame = Frame(self.EntryFrame,bd=5)
-        self.ChooserFrame.grid(row=14, column=1)
-        self.Font = Entry(self.ChooserFrame, textvariable=self.FontVar ,width=25)
-        self.Font.grid(row=0, column=0)
-        self.FontB = Button(self.ChooserFrame, text="Browse", command=self.ChooseFont)
-        self.FontB.grid(row=0, column=1)
+        self.FontVar.set(fontList[3])
+        fontfile = fontList[3]
+        self.Font = OptionMenu(self.EntryFrame, self.FontVar, *fontList ,command=self.ChooseFont)
+        self.Font.grid(row=14, column=1)
 
         self.st15 = Label(self.EntryFrame, text='Stripe Position')
         self.st15.grid(row=15,  column=0)
@@ -314,8 +315,9 @@ class Application(Frame):
         # range check inputs for gross errors
         try:
             self.Font.configure( bg = self.NormalColor )
-            file = open(self.Font.get())
+            file = open(fontPath+self.FontVar.get())
         except:
+            print self.FontVar.get()
             self.Font.configure( bg = 'red' )
             return
 
@@ -411,7 +413,7 @@ class Application(Frame):
         self.gcode.append("o9000 endsub")
         self.gcode.append("(===================================================================)")
         self.gcode.append(self.PreambleVar.get())
-        self.gcode.append( 'G1 Z#1001')
+        self.gcode.append( 'G0 Z#1001')
 
         font = parse(file)          # build stroke lists from font file
         file.close()
@@ -441,6 +443,7 @@ class Application(Frame):
 
             # move to inner radius of tick mark
             self.gcode.append( 'G0 X[%.4f+#1003]  Y[%.4f+#1004]' %(x1,y1))
+            #self.gcode.append( 'G0 X[%.4f+#1003]  Y[#1004]' %(x1))
 
             # set to cutting height
             self.gcode.append( 'G1 Z#1002')
@@ -465,6 +468,8 @@ class Application(Frame):
                     RealX -= Every
                 elif (MajorCT >= 100):
                     RealX -= (Every * 2)
+            	if (BaseL == 2):
+                	RealY -= Every
                 self.segID.append( self.PreviewCanvas.create_text(15+(x1-Every)/Scale, 150-(y2+StartY)/Scale, fill = 'black', width = 1, text = String))
                 for char in String:
                     if char == ' ':
@@ -502,7 +507,10 @@ class Application(Frame):
                     except KeyError:
                        self.gcode.append("(warning: character '0x%02X' not found in font defn)" % ord(char))
 
+                    # raise engraver
+                    self.gcode.append( 'G0 Z#1001')
                     self.gcode.append("")       # blank line after every char block
+                
 
         # spot drill the center point of the bezel
         #self.gcode.append( 'G0 X#1003  Y#1004')
@@ -512,11 +520,10 @@ class Application(Frame):
         # finish up with icing
         self.gcode.append(self.PostambleVar.get())
 
-    def ChooseFont(self):
-        filename = tkFileDialog.askopenfilename(initialdir=".", title="Select a Font File", filetypes = (("Font files","*.cxf"),("All files","*.*")))
-        if (not filename):
-            return
-        self.FontVar.set(filename)
+    def ChooseFont(self, value):
+        self.FontVar.set(value)
+        fontfile = value
+        self.DoIt()
 
     def UnitSelect(self):
         selection = int(self.UnitVar.get())
