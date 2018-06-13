@@ -172,6 +172,10 @@ class Application(Frame):
         self.PreviewFrame.grid(row=0, column=0)
         self.PreviewCanvas = Canvas(self.PreviewFrame,width=500, height=300, bg='white', bd='3', relief = 'raised')
         self.PreviewCanvas.grid(sticky=N+S+E+W)
+        self.PreviewCanvas.config(scrollregion=(0,0,10000, 300))
+        self.PreviewScroll = Scrollbar(self.PreviewFrame, command=self.PreviewCanvas.xview, orient=HORIZONTAL)
+        self.PreviewCanvas.config(xscrollcommand=self.PreviewScroll.set)
+        self.PreviewScroll.grid(row=1,column=0, sticky=E+W)
         self.XLine = self.PreviewCanvas.create_line(15,150,65,150, fill = 'red')
         self.YLine = self.PreviewCanvas.create_line(15,160,15,100, fill = 'green')
 
