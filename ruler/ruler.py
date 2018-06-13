@@ -291,10 +291,29 @@ class Application(Frame):
         self.Font = OptionMenu(self.EntryFrame, self.FontVar, *fontList ,command=self.ChooseFont)
         self.Font.grid(row=14, column=1)
 
-        self.st15 = Label(self.EntryFrame, text='Stripe Position')
+        self.st15 = Label(self.EntryFrame, text='Label Offset')
         self.st15.grid(row=15,  column=0)
+        self.OffsetFrame = Frame(self.EntryFrame,bd=5)
+        self.OffsetFrame.grid(row=15, column=1)
+        
+        self.st15_1 = Label(self.OffsetFrame, text='X')
+        self.st15_1.grid(row=0, column=0)
+        self.FontXOffsetVar = StringVar()
+        self.FontXOffsetVar.set('-0.25')
+        self.FontXOffset = Entry(self.OffsetFrame, textvariable=self.FontXOffsetVar ,width=5)
+        self.FontXOffset.grid(row=0, column=1)
+        
+        self.st15_2 = Label(self.OffsetFrame, text='Y')
+        self.st15_2.grid(row=0, column=3)
+        self.FontYOffsetVar = StringVar()
+        self.FontYOffsetVar.set('-0.125')
+        self.FontYOffset = Entry(self.OffsetFrame, textvariable=self.FontYOffsetVar ,width=5)
+        self.FontYOffset.grid(row=0, column=4)
+
+        self.st16 = Label(self.EntryFrame, text='Stripe Position')
+        self.st16.grid(row=16,  column=0)
         self.BaselineFrame = Frame(self.EntryFrame,bd=5)
-        self.BaselineFrame.grid(row=15, column=1)
+        self.BaselineFrame.grid(row=16, column=1)
         BaselineOptions=[('Above',0),('Midway',1),('Below',2)]
         self.BaselineVar = IntVar()
         for text, value in BaselineOptions:
@@ -303,12 +322,11 @@ class Application(Frame):
                 .grid(row=0, column=value)
         self.BaselineVar.set(0)
 
-
         self.DoItButton = Button(self.EntryFrame, text='Recalculate', command=self.DoIt)
-        self.DoItButton.grid(row=16, column=0)
+        self.DoItButton.grid(row=17, column=0)
 
         self.ToClipboard = Button(self.EntryFrame, text='To Clipboard', command=self.CopyClipboard)
-        self.ToClipboard.grid(row=16, column=1)
+        self.ToClipboard.grid(row=17, column=1)
 
         if IN_AXIS:
             self.quitButton = Button(self, text='Write to AXIS and Quit',command=self.WriteToAxis)
@@ -373,6 +391,8 @@ class Application(Frame):
         MEvery   = float(self.MajorStripeEveryVar.get())
         HEvery   = float(MEvery / 2)
         BaseL    = int(self.BaselineVar.get())
+        FontX    = float(self.FontXOffsetVar.get())
+        FontY    = float(self.FontYOffsetVar.get())
         NumTicks = int((Length / Every)+1) 
         Scale    = MajorSL * 2.0 * 1.2 / 200.0          # nominal inches(mm) / pixel for plotting
         Angle    = 0.0
@@ -467,14 +487,14 @@ class Application(Frame):
 
             if ((tick %  MEvery) == 0 and tick != 0): #Write the number for this major line
                 String = str(MajorCT)
-                RealX  = float((StartX + x1) - Every)
-                RealY  = float((StartY + y2))
-                if (MajorCT >= 10 and MajorCT < 100):
-                    RealX -= Every
-                elif (MajorCT >= 100):
-                    RealX -= (Every * 2)
-            	if (BaseL == 2):
-                	RealY -= Every
+                RealX  = float((StartX + x1) + FontX)
+                RealY  = float((StartY + y2) + FontY)
+                #if (MajorCT >= 10 and MajorCT < 100):
+                #    RealX -= Every
+                #elif (MajorCT >= 100):
+                #    RealX -= (Every * 2)
+            	#if (BaseL == 2):
+                #	RealY -= Every
                 #self.segID.append( self.PreviewCanvas.create_text(15+(x1-Every)/Scale, 150-(y2+StartY)/Scale, fill = 'black', width = 1, text = String))
                 for char in String:
                     if char == ' ':
