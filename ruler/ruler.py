@@ -282,8 +282,8 @@ class Application(Frame):
         self.st14 = Label(self.EntryFrame, text='Label Font')
         self.st14.grid(row=14, column=0)
         self.FontVar = StringVar()
-        self.FontVar.set(fontList[3])
-        fontfile = fontList[3]
+        self.FontVar.set(fontList[14])
+        fontfile = fontList[14]
         self.Font = OptionMenu(self.EntryFrame, self.FontVar, *fontList ,command=self.ChooseFont)
         self.Font.grid(row=14, column=1)
 
@@ -370,7 +370,7 @@ class Application(Frame):
         HEvery   = float(MEvery / 2)
         BaseL    = int(self.BaselineVar.get())
         NumTicks = int((Length / Every)+1) 
-        Scale    = MajorSL * 2.0 * 1.2 / 300.0          # nominal inches(mm) / pixel for plotting
+        Scale    = MajorSL * 2.0 * 1.2 / 200.0          # nominal inches(mm) / pixel for plotting
         Angle    = 0.0
         XScale   = 0.04
         YScale   = 0.04
@@ -471,7 +471,7 @@ class Application(Frame):
                     RealX -= (Every * 2)
             	if (BaseL == 2):
                 	RealY -= Every
-                self.segID.append( self.PreviewCanvas.create_text(15+(x1-Every)/Scale, 150-(y2+StartY)/Scale, fill = 'black', width = 1, text = String))
+                #self.segID.append( self.PreviewCanvas.create_text(15+(x1-Every)/Scale, 150-(y2+StartY)/Scale, fill = 'black', width = 1, text = String))
                 for char in String:
                     if char == ' ':
                         xoffset += font_word_space
@@ -500,6 +500,15 @@ class Application(Frame):
                             y2 = stroke.yend
                             self.gcode.append('o9000 call [1] [%.4f] [%.4f] [%.4f] [%.4f]' %(x2,y2,RealX,RealY))
                             oldx, oldy = stroke.xend, stroke.yend
+
+                            # since rotation and scaling is done in gcode, we need equivalent for plotting
+                            # note that plot shows true shape and orientation of chrs, but starting x,y
+                            # is always at the center of the preview window (offsets not displayed)
+                            x1,y1 = self.Rotn(x1,y1,XScale,YScale,Angle)
+                            x2,y2 = self.Rotn(x2,y2,XScale,YScale,Angle)
+                            self.segID.append( self.PreviewCanvas.create_line(
+                                15+(x1+RealX)/Scale, 150-(y1+RealY)/Scale,15+(x2+RealX)/Scale, 150-(y2+RealY)/Scale,
+                                fill = 'black', width = 1))
 
                         # move over for next character
                         char_width = font[char].get_xmax()
@@ -565,6 +574,20 @@ class Application(Frame):
         for line in self.gcode:
             sys.stdout.write(line+'\n')
         self.quit()
+#=======================================================================
+# routine takes an x and a y in raw internal format
+# x and y scales are applied and then x,y pt is rotated by angle
+# Returns new x,y tuple
+    def Rotn(self,x,y,xscale,yscale,angle):
+        Deg2Rad = 2.0 * pi / 360.0
+        xx = x * xscale
+        yy = y * yscale
+        rad = sqrt(xx * xx + yy * yy)
+        theta = atan2(yy,xx)
+        newx=rad * cos(theta + angle*Deg2Rad)
+        newy=rad * sin(theta + angle*Deg2Rad)
+        return newx,newy
+
 
 	#=======================================================================
     def sanitize(self,string):
