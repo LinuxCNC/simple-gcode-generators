@@ -309,11 +309,30 @@ class Application(Frame):
         self.FontYOffsetVar.set('-0.125')
         self.FontYOffset = Entry(self.OffsetFrame, textvariable=self.FontYOffsetVar ,width=5)
         self.FontYOffset.grid(row=0, column=4)
-
-        self.st16 = Label(self.EntryFrame, text='Stripe Position')
+        
+        self.st16 = Label(self.EntryFrame, text='Label Scale')
         self.st16.grid(row=16,  column=0)
+        self.ScaleFrame = Frame(self.EntryFrame,bd=5)
+        self.ScaleFrame.grid(row=16, column=1)
+        
+        self.st16_1 = Label(self.ScaleFrame, text='X')
+        self.st16_1.grid(row=0, column=0)
+        self.XScaleVar = StringVar()
+        self.XScaleVar.set('0.04')
+        self.XScale = Entry(self.ScaleFrame, textvariable=self.XScaleVar ,width=5)
+        self.XScale.grid(row=0, column=1)
+        
+        self.st16_2 = Label(self.ScaleFrame, text='Y')
+        self.st16_2.grid(row=0, column=3)
+        self.YScaleVar = StringVar()
+        self.YScaleVar.set('0.04')
+        self.YScale = Entry(self.ScaleFrame, textvariable=self.YScaleVar ,width=5)
+        self.YScale.grid(row=0, column=4)
+
+        self.st17 = Label(self.EntryFrame, text='Stripe Position')
+        self.st17.grid(row=17,  column=0)
         self.BaselineFrame = Frame(self.EntryFrame,bd=5)
-        self.BaselineFrame.grid(row=16, column=1)
+        self.BaselineFrame.grid(row=17, column=1)
         BaselineOptions=[('Above',0),('Midway',1),('Below',2)]
         self.BaselineVar = IntVar()
         for text, value in BaselineOptions:
@@ -323,10 +342,10 @@ class Application(Frame):
         self.BaselineVar.set(0)
 
         self.DoItButton = Button(self.EntryFrame, text='Recalculate', command=self.DoIt)
-        self.DoItButton.grid(row=17, column=0)
+        self.DoItButton.grid(row=18, column=0)
 
         self.ToClipboard = Button(self.EntryFrame, text='To Clipboard', command=self.CopyClipboard)
-        self.ToClipboard.grid(row=17, column=1)
+        self.ToClipboard.grid(row=18, column=1)
 
         if IN_AXIS:
             self.quitButton = Button(self, text='Write to AXIS and Quit',command=self.WriteToAxis)
@@ -396,8 +415,8 @@ class Application(Frame):
         NumTicks = int((Length / Every)+1) 
         Scale    = MajorSL * 2.0 * 1.2 / 200.0          # nominal inches(mm) / pixel for plotting
         Angle    = 0.0
-        XScale   = 0.04
-        YScale   = 0.04
+        XScale   = float(self.XScaleVar.get()) #0.04
+        YScale   = float(self.YScaleVar.get()) #0.04
         CSpaceP  = 25.0
         WSpaceP  = 100.0
         MajorCT  = 0
@@ -571,17 +590,25 @@ class Application(Frame):
             self.MajorStripeEveryVar.set('8')
             self.DepthVar.set('-0.010')
             self.SafeZVar.set('+0.125')
+            self.FontXOffsetVar.set('-0.25')
+            self.FontYOffsetVar.set('-0.125')
+            self.XScaleVar.set('0.04')
+            self.YScaleVar.set('0.04')
             self.DoIt()
         else: #Setup for MM ditto above
-            self.PreambleVar.set('G17 G21 G90 G64 P0.003 M3 S3000 M7 F5')
+            self.PreambleVar.set('G17 G21 G90 G64 P0.003 M3 S3000 M7 F150')
             self.RulerLengthVar.set('400')
-            self.MajorStripeLengthVar.set('10')
-            self.HalfStripeLengthVar.set('6')
-            self.MinorStripeLengthVar.set('3')
-            self.RulerStripesEveryVar.set('1')
+            self.MajorStripeLengthVar.set('8.0')
+            self.HalfStripeLengthVar.set('5.0')
+            self.MinorStripeLengthVar.set('3.0')
+            self.RulerStripesEveryVar.set('1.0')
             self.MajorStripeEveryVar.set('10')
-            self.DepthVar.set('-1')
-            self.SafeZVar.set('+3')
+            self.DepthVar.set('-1.0')
+            self.SafeZVar.set('+3.0')
+            self.FontXOffsetVar.set('-1.7')
+            self.FontYOffsetVar.set('0.1')
+            self.XScaleVar.set('0.4')
+            self.YScaleVar.set('0.4')
             self.DoIt()
 
     def BaselineSelect(self):
