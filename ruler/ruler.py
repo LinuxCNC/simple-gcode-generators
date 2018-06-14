@@ -199,7 +199,7 @@ class Application(Frame):
         self.st02 = Label(self.EntryFrame, text='Preamble')
         self.st02.grid(row=2, column=0)
         self.PreambleVar = StringVar()
-        self.PreambleVar.set('G17 G20 G90 G64 P0.003 M3 S3000 M7 F5')
+        self.PreambleVar.set('G17 G20 G90 G64 P0.003 M3 S3000 M7 F50')
         self.Preamble = Entry(self.EntryFrame, textvariable=self.PreambleVar ,width=15)
         self.Preamble.grid(row=2, column=1)
 
@@ -215,21 +215,21 @@ class Application(Frame):
         self.st04 = Label(self.EntryFrame, text='Major Stripe Length')
         self.st04.grid(row=4, column=0)
         self.MajorStripeLengthVar = StringVar()
-        self.MajorStripeLengthVar.set('0.750')
+        self.MajorStripeLengthVar.set('0.500')
         self.MajorStripeLength = Entry(self.EntryFrame, textvariable=self.MajorStripeLengthVar ,width=15)
         self.MajorStripeLength.grid(row=4, column=1)
 
         self.st05 = Label(self.EntryFrame, text='Half Stripe Length')
         self.st05.grid(row=5, column=0)
         self.HalfStripeLengthVar = StringVar()
-        self.HalfStripeLengthVar.set('0.500')
+        self.HalfStripeLengthVar.set('0.375')
         self.HalfStripeLength = Entry(self.EntryFrame, textvariable=self.HalfStripeLengthVar ,width=15)
         self.HalfStripeLength.grid(row=5, column=1)
 
         self.st06 = Label(self.EntryFrame, text='Minor Stripe Length')
         self.st06.grid(row=6, column=0)
         self.MinorStripeLengthVar = StringVar()
-        self.MinorStripeLengthVar.set('0.25')
+        self.MinorStripeLengthVar.set('0.125')
         self.MinorStripeLength = Entry(self.EntryFrame, textvariable=self.MinorStripeLengthVar ,width=15)
         self.MinorStripeLength.grid(row=6, column=1)
 
@@ -299,14 +299,14 @@ class Application(Frame):
         self.st15_1 = Label(self.OffsetFrame, text='X')
         self.st15_1.grid(row=0, column=0)
         self.FontXOffsetVar = StringVar()
-        self.FontXOffsetVar.set('-0.25')
+        self.FontXOffsetVar.set('-0.125')
         self.FontXOffset = Entry(self.OffsetFrame, textvariable=self.FontXOffsetVar ,width=5)
         self.FontXOffset.grid(row=0, column=1)
         
         self.st15_2 = Label(self.OffsetFrame, text='Y')
         self.st15_2.grid(row=0, column=3)
         self.FontYOffsetVar = StringVar()
-        self.FontYOffsetVar.set('-0.125')
+        self.FontYOffsetVar.set('+0.0625')
         self.FontYOffset = Entry(self.OffsetFrame, textvariable=self.FontYOffsetVar ,width=5)
         self.FontYOffset.grid(row=0, column=4)
         
@@ -482,6 +482,7 @@ class Application(Frame):
 
             if (BaseL == 1):
                 y1 = (y1 - (y2/2)) 
+                y2 = (y2/2)
             elif (BaseL == 2):
                 y2 = -y2
 
@@ -581,17 +582,17 @@ class Application(Frame):
     def UnitSelect(self):
         selection = int(self.UnitVar.get())
         if( selection == 1): #Setup for default inches or do I convert current by 25.4
-            self.PreambleVar.set('G17 G20 G90 G64 P0.003 M3 S3000 M7 F5')
+            self.PreambleVar.set('G17 G20 G90 G64 P0.003 M3 S3000 M7 F50')
             self.RulerLengthVar.set('15')
-            self.MajorStripeLengthVar.set('0.750')
-            self.HalfStripeLengthVar.set('0.500')
-            self.MinorStripeLengthVar.set('.25')
+            self.MajorStripeLengthVar.set('0.500')
+            self.HalfStripeLengthVar.set('0.375')
+            self.MinorStripeLengthVar.set('.125')
             self.RulerStripesEveryVar.set('0.125')
             self.MajorStripeEveryVar.set('8')
             self.DepthVar.set('-0.010')
             self.SafeZVar.set('+0.125')
-            self.FontXOffsetVar.set('-0.25')
-            self.FontYOffsetVar.set('-0.125')
+            self.FontXOffsetVar.set('-0.125')
+            self.FontYOffsetVar.set('+0.0625')
             self.XScaleVar.set('0.04')
             self.YScaleVar.set('0.04')
             self.DoIt()
