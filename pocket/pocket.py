@@ -41,6 +41,8 @@ import tkMessageBox
 
 IN_AXIS = os.environ.has_key("AXIS_PROGRESS_BAR")
 
+toolChange = ''
+
 class Application(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -107,7 +109,7 @@ class Application(Frame):
         self.st01 = Label(self.EntryFrame, text='Preamble')
         self.st01.grid(row=self.rownumber, column=0)
         self.PreambleVar = StringVar()
-        self.PreambleVar.set('G17 G21 G90 G64 P0.01 M3 S3000 M7')
+        self.PreambleVar.set('G17 G21 G90 G64 P0.01%s M3 S3000 M7' %(toolChange))
         self.Preamble = Entry(self.EntryFrame, textvariable=self.PreambleVar ,width=35)
         self.Preamble.grid(row=self.rownumber, column=1)
         self.NormalColor =  self.Preamble.cget('bg')
@@ -125,8 +127,8 @@ class Application(Frame):
         self.st10a = Label(self.EntryFrame, text='ToolNumber (T)')
         self.st10a.grid(row=self.rownumber, column=0)
         self.ToolNumberVar = IntVar()
-        self.ToolNumberVar.set('1')
-        self.ToolNumber = Entry(self.EntryFrame, textvariable=self.ToolNumberVar ,width=3)
+        self.ToolNumberVar.set('0')
+        self.ToolNumber = Spinbox(self.EntryFrame, textvariable=self.ToolNumberVar,from_=0,to=99 ,width=4, command=self.ChangeTool)
         self.ToolNumber.grid(row=self.rownumber, column=1,sticky=W)
 
         self.st10ab = Label(self.EntryFrame, text='             ToolOffsetNumber (D)')
@@ -257,11 +259,20 @@ class Application(Frame):
     def Change_Units(self):
         if (self.UnitVar.get() == 0) :
             #Inch 
-            self.PreambleVar.set('G17 G20 G90 G64 P0.001 M3 S3000 M7')
+            self.PreambleVar.set('G17 G20 G90 G64 P0.001%s M3 S3000 M7' %(toolChange))
         else :
             #MM
-            self.PreambleVar.set('G17 G21 G90 G64 P0.01 M3 S3000 M7')
+            self.PreambleVar.set('G17 G21 G90 G64 P0.01%s M3 S3000 M7' %(toolChange))
         
+    def ChangeTool(self):
+        global toolChange
+        print 'Inside ChangeTool T:'+str(self.ToolNumberVar.get())
+        if (self.ToolNumberVar.get() > 0):
+            toolChange = (" M6 T%d" %(int(self.ToolNumberVar.get())))
+        else:
+            toolChange = ''
+        self.Change_Units()
+
     def DoIt(self):
         # if g41/42 enable tooloffsetnumber entry
         if self.MovmentVar.get() == 0:
@@ -334,6 +345,7 @@ class Application(Frame):
         stepoverz=float(self.ZStepover.get())
         if stepoverz > 0:
             stepoverz = stepoverz * (-1)
+        firstRun = True
         #----------------------
         #circulare pocketing
         #---------------------
@@ -381,10 +393,14 @@ class Application(Frame):
                 centerx = float(self.XPocketCenter.get())
                 # keep here in while till final depth is reatched
                 while tempz < 0 :
+                    gword = 91
+                    if firstRun:
+                        firstRun = False
+                        gword = 90
                     if tempz < stepoverz:
-                        self.gcode.append('G1 G91 Z%.3f F%.2f ' %(stepoverz,speedZ))
+                        self.gcode.append('G1 G%d Z%.3f F%.2f ' %(gword,stepoverz,speedZ))
                     else:
-                        self.gcode.append('G1 G91 Z%.3f F%.2f ' %(tempz,speedZ))
+                        self.gcode.append('G1 G%d Z%.3f F%.2f ' %(gword,tempz,speedZ))
                     tempz=tempz-stepoverz
                     for cir in xrange(1,numberofcircels):
                         self.gcode.append('G1 G90 X%.3f F%.2f ' %((centerx+(cir*Spacing)),speedXY))
@@ -404,6 +420,9 @@ class Application(Frame):
                         else:
                             self.gcode.append('G2 I-%.3f' %(PocketRadius-ToolDiameterRad))
                             
+                    #go to Zsafe before moving to center
+                    if(tempz >= 0):
+                        self.gcode.append( 'G0 Z%.4f ' %(float(self.SafeZVar.get()))) #G0 Zsafe
                     self.gcode.append( 'G1 X%.4f Y%.4f ' %(float(self.XPocketCenterVar.get()),float(self.YPocketCenterVar.get())))# Center
                 self.gcode.append( 'G0 Z%.4f ' %(float(self.SafeZVar.get()))) #G0 Zsafe
             else:#cirel_spiral
@@ -446,10 +465,14 @@ class Application(Frame):
                 self.gcode.append('( Spiral Zero Path )')
                 self.gcode.append('G1 Z0.00 F%.2f (Move to Z Zero for incremental Z pathes )' %speedZ)
                 while tempz < 0 :
+                    gword = 91
+                    if firstRun:
+                        firstRun = False
+                        gword = 90
                     if tempz < stepoverz:
-                        self.gcode.append('G1 G91 Z%.3f F%.2f ' %(stepoverz,speedZ))
+                        self.gcode.append('G1 G%d Z%.3f F%.2f ' %(gword,stepoverz,speedZ))
                     else:
-                        self.gcode.append('G1 G91 Z%.3f F%.2f ' %(tempz,speedZ))
+                        self.gcode.append('G1 G%d Z%.3f F%.2f ' %(gword,tempz,speedZ))
                     tempz=tempz-stepoverz
                     cycels=int((pocket_length_x-ToolDiameter)/Spacing/2.0) 
                     tempr=Spacing
@@ -466,6 +489,9 @@ class Application(Frame):
                     newI= ((centerx+(cycle*Spacing))-(centerx-PocketRadius+ToolDiameterRad))/2.0
                     self.gcode.append('G3 X%.3f Y%.3f I-%.3f ' %(centerx-PocketRadius+ToolDiameterRad,centery,newI))
                     self.gcode.append('G3 I%.3f ' %(PocketRadius-ToolDiameterRad))
+                    #go to Zsafe before moving to center
+                    if(tempz >= 0):
+                        self.gcode.append( 'G0 Z%.4f ' %(float(self.SafeZVar.get()))) #G0 Zsafe
                     self.gcode.append( 'G1 X%.4f Y%.4f ' %(centerx,centery))# Center
                 self.gcode.append( 'G0 Z%.4f ' %(float(self.SafeZVar.get()))) #G0 Zsafe
         #---------------
@@ -506,10 +532,14 @@ class Application(Frame):
                 first_length_y=((pocket_length_y-ToolDiameter)/2.0)-(rec_cycels*Spacing)
                 self.gcode.append('G1 G90 Z0.00 F%.2f (Move to Z Zero for incremental Z pathes )' %speedZ)
                 while tempz < 0 :
+                    gword = 91
+                    if firstRun:
+                        firstRun = False
+                        gword = 90
                     if tempz < stepoverz:
-                        self.gcode.append('G1 G91 Z%.3f F%.2f ' %(stepoverz,speedZ))
+                        self.gcode.append('G1 G%d Z%.3f F%.2f ' %(gword,stepoverz,speedZ))
                     else:
-                        self.gcode.append('G1 G91 Z%.3f F%.2f ' %(tempz,speedZ))
+                        self.gcode.append('G1 G%d Z%.3f F%.2f ' %(gword,tempz,speedZ))
                     tempz=tempz-stepoverz
                     while_value=0
                     canvasoldX=150
@@ -543,6 +573,9 @@ class Application(Frame):
                                         150-((pocket_length_y-ToolDiameter)/2.0/Scale),
                                         150+((pocket_length_x-ToolDiameter)/2.0/Scale),
                                         150+((pocket_length_y-ToolDiameter)/2.0/Scale), outline='red'))
+                    #go to Zsafe before moving to center
+                    if(tempz >= 0):
+                        self.gcode.append( 'G0 Z%.4f ' %(float(self.SafeZVar.get()))) #G0 Zsafe
                     self.gcode.append( 'G1 G90 X%.4f Y%.4f ' %(centerx,centery))# Center
                 self.gcode.append( 'G0 Z%.4f ' %(float(self.SafeZVar.get()))) #G0 Zsafe
             
@@ -560,10 +593,14 @@ class Application(Frame):
                 new_x_stepover=(pocket_length_x-ToolDiameter)/(rec_cycels*2)
                 new_y_stepover=(pocket_length_y-ToolDiameter)/(rec_cycels*2)
                 while tempz < 0 :
+                    gword = 91
+                    if firstRun:
+                        firstRun = False
+                        gword = 90
                     if tempz < stepoverz:
-                        self.gcode.append('G1 G91 Z%.3f F%.2f ' %(stepoverz,speedZ))
+                        self.gcode.append('G1 G%d Z%.3f F%.2f ' %(gword,stepoverz,speedZ))
                     else:
-                        self.gcode.append('G1 G91 Z%.3f F%.2f ' %(tempz,speedZ))
+                        self.gcode.append('G1 G%d Z%.3f F%.2f ' %(gword,tempz,speedZ))
                     tempz=tempz-stepoverz
                     cycle=1
                     tempx=new_x_stepover
@@ -611,6 +648,9 @@ class Application(Frame):
                                         150+((pocket_length_x-ToolDiameter)/2.0/Scale),
                                         150+((pocket_length_y-ToolDiameter)/2.0/Scale), outline='red'))
                       
+                    #go to Zsafe before moving to center
+                    if(tempz >= 0):
+                        self.gcode.append( 'G0 Z%.4f ' %(float(self.SafeZVar.get()))) #G0 Zsafe
                     self.gcode.append( 'G1 G90 X%.4f Y%.4f ' %(centerx,centery))
                 self.gcode.append( 'G0 Z%.4f ' %(float(self.SafeZVar.get()))) #G0 Zsafe
                         
