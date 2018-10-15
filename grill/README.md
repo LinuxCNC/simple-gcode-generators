@@ -1,7 +1,7 @@
 Grill Drilling Software
 =======================
 
-**Authors:** Alex Bobotek, John Thornton and Lawrence Gaister
+**Authors:** Alex Bobotek, John Thornton and Lawrence Glaister
 
 **Download:** [grill.py](https://github.com/linuxcnc/simple-gcode-generators/raw/master/grill/grill.py)
 
