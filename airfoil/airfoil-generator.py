@@ -41,7 +41,7 @@ def programm_schliesen():
     root.destroy()
 def file_save():
     global g_code_code
-    file_save = tkFileDialog.asksaveasfilename(title="NC-g_code-DATEI", \
+    file_save = tkFileDialog.asksaveasfilename(title="NC-g_code-DATA", \
     filetypes=[("LinuxCNC file",".ngc"),("NCFRS file",".nc"),("NC TAP",".tap"),\
     ("txt file",".txt"),("All files",".*")],initialfile="g_code",initialdir="/home/sammel/xyuv-foam/nc_files")
     fobj = open(file_save, "w") 
@@ -58,7 +58,7 @@ def info():
     info_label_text.config(text='   Just Hit the profile entry in the list    ' )
     info_label_text.update()    
     sleep(1)
-    info_label_text.config(text=' and SAVE via File Menue the G-code   ' )
+    info_label_text.config(text=' and SAVE via File Menu the G-code   ' )
     info_label_text.update()    
     
 def get_profilenames():
@@ -122,7 +122,7 @@ def draw_on_xy_canvas(data):
     g_code.append("G17.1 G21 G54 G90 G40 G80 G64 P0.05 \n")
     
     xy_profile_draw.delete(ALL)
-    xy_profile_draw.create_text((120,15), text="XY PROFIL %s "% xy_profil_name.get() ,font=('courier', 12, 'bold'))
+    xy_profile_draw.create_text((120,15), text="XY PROFILE %s "% xy_profil_name.get() ,font=('courier', 12, 'bold'))
     calculation_canvas.delete("xy")
     for line in data:
         linesplit=line.split()
@@ -134,7 +134,10 @@ def draw_on_xy_canvas(data):
         y_coord =int(float(linesplit[1])*Factor)+y_zero
         x_gcode =float(linesplit[0])*g_code_scale
         y_gcode =float(linesplit[1])*g_code_scale
-        gcode_line= "G1 X%.3f Y%.3f \n"%(x_gcode,y_gcode)
+        if not first:
+            gcode_line= "G1 X%.3f Y%.3f \n"%(x_gcode,y_gcode)
+        else:
+            gcode_line= "G1 X%.3f Y%.3f F%.3d \n"%(x_gcode,y_gcode,feed.get())
         g_code.append(gcode_line)
         if not first:
             xy_profile_draw.create_line(x_old_coord,y_old_coord,x_coord,y_coord,
@@ -163,7 +166,7 @@ def draw_on_uv_canvas(data):
     g_code_scale= xy_profile_width.get()
     uv_profile_draw.delete(ALL)
     calculation_canvas.delete("uv")
-    uv_profile_draw.create_text((120,15), text="UV PROFIL %s"% uv_profil_name.get() ,font=('courier', 12, 'bold'))
+    uv_profile_draw.create_text((120,15), text="UV PROFILE %s"% uv_profil_name.get() ,font=('courier', 12, 'bold'))
     if uv_plane_activated:
         for line in data:
             linesplit=line.split()
@@ -183,7 +186,7 @@ def draw_on_uv_canvas(data):
             first=False
     else:
         uv_profile_draw.delete(ALL)
-        uv_profile_draw.create_text((250,100), text="UV PROFIL",font=('courier', 40, 'bold'))
+        uv_profile_draw.create_text((250,100), text="UV PROFILE",font=('courier', 40, 'bold'))
         
 def xy_profil_listbox_action(event):
     xy_index = xy_profil_listbox.curselection()
@@ -228,20 +231,24 @@ def uv_profil_listbox_action(event):
 def add_uv_plane():
     global uv_plane_activated
     if uv_plane_activated:
-        uv_plane_activated=False
+        uv_plane_activated = False
+        uv_profil_search.config(bg='black')
         uv_profil_listbox.config(bg="black",selectbackground="black")
         uv_profil_name_show_entry.config(disabledbackground="black")
         uv_profile_width_entry.config(bg="black")   
         uv_profile_offset_x_entry.config(bg="black")
         uv_profile_offset_y_entry.config(bg="black")
+        button_add_uv_plane.config(text='Add UV Plane')
     else:
         uv_plane_activated = True
+        uv_profil_search.config(bg='white')
         uv_profil_listbox.config(bg="white",selectbackground="lightgray")
         uv_profil_listbox.see(uv_index)
         uv_profil_name_show_entry.config(disabledbackground="white")
         uv_profile_width_entry.config(bg="white")   
         uv_profile_offset_x_entry.config(bg="white")
         uv_profile_offset_y_entry.config(bg="white")
+        button_add_uv_plane.config(text='Remove UV Plane')
     uv_profil_listbox.select_set(first=1166, last=None)
     uv_profil_listbox_action(uv_index)
 
@@ -317,9 +324,9 @@ def generate():
             g_code.append("(profile XY %s  profile UV %s )\n"
             %(xy_profil_name.get(),uv_profil_name.get()))
             g_code.append("(!!!! Pointdifferens !!!!)\n")
-            g_code.append("(PLEASE EDIT Point to Point Manuell )\n")
+            g_code.append("(PLEASE EDIT Point to Point Manually )\n")
             g_code.append("( TO keep the profile SHAPE)\n")
-            g_code.append("(XY Points %d  UV points %d ,Differnce %d )\n"
+            g_code.append("(XY Points %d  UV points %d ,Difference %d )\n"
             %(len(xy_point_data),len(uv_point_data),whats_the_different))
             g_code.append("(test on xyuv FOAM or 9Axis Linuxcnc sim )\n")
             g_code.append("(AXIS,XY_Z_POS,5)\n")
@@ -334,6 +341,7 @@ def generate():
                 runto=len(uv_point_data)
                 max_run= len(xy_point_data)
                 larger_pointlist= "xy"
+            firstrun=True
             for a in range(0,runto):
                 xy_linesplit = xy_point_data[a].split()
                 uv_linesplit = uv_point_data[a].split()
@@ -341,8 +349,12 @@ def generate():
                 y_gcode =float(xy_linesplit[1])*xy_profile_width.get()
                 u_gcode =(float(uv_linesplit[0])*uv_profile_width.get())+uv_profile_offset_x.get()
                 v_gcode =(float(uv_linesplit[1])*uv_profile_width.get())+uv_profile_offset_y.get()
-                gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f \n"%(x_gcode,y_gcode,u_gcode,v_gcode)
+                if not firstrun:
+                    gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f \n"%(x_gcode,y_gcode,u_gcode,v_gcode)
+                else:
+                    gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f F%.3d \n"%(x_gcode,y_gcode,u_gcode,v_gcode,feed.get())
                 g_code.append(gcode_line)
+                firstrun=False
             for a in range(runto,max_run):
                 if larger_pointlist == "xy":
                     linesplit = xy_point_data[a].split()
@@ -368,6 +380,7 @@ def generate():
         g_code.append("(AXIS,UV_Z_POS,30)\n")
         g_code.append("(AXIS,GRID,5) \n")
         g_code.append("G17 G21 G54 G90 G40 G80 G64 P0.05 \n")
+        firstrun=True
         for a in range(0,len(xy_point_data)):
             xy_linesplit = xy_point_data[a].split()
             uv_linesplit = uv_point_data[a].split()
@@ -375,7 +388,11 @@ def generate():
             y_gcode =float(xy_linesplit[1])*xy_profile_width.get()
             u_gcode =(float(uv_linesplit[0])*uv_profile_width.get())+uv_profile_offset_x.get()
             v_gcode =(float(uv_linesplit[1])*uv_profile_width.get())+uv_profile_offset_y.get()
-            gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f \n"%(x_gcode,y_gcode,u_gcode,v_gcode)
+            if not firstrun:
+                gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f \n"%(x_gcode,y_gcode,u_gcode,v_gcode)
+            else:
+                gcode_line= "G1 X%.3f Y%.3f U%.3f V%.3f F%.3d \n"%(x_gcode,y_gcode,u_gcode,v_gcode,feed.get())
+            firstrun=False
             g_code.append(gcode_line)
         g_code.append("M30 \n")
     gcode_show_text.config(state=NORMAL,font=('courier', 12, 'normal'))
@@ -383,6 +400,26 @@ def generate():
     for line in g_code:
         gcode_show_text.insert(END,line)
     gcode_show_text.config(state=DISABLED)
+
+def update_xy_profile_list():
+    search = xy_profil_search.get()
+
+    airfoils = get_profilenames()
+    xy_profil_listbox.delete(0, END)
+    for item in airfoils:
+        p=item.split('.')
+        if search.lower() in item.lower():
+            xy_profil_listbox.insert(END, p[0])
+
+def update_uv_profile_list():
+    search = uv_profil_search.get()
+
+    airfoils = get_profilenames()
+    uv_profil_listbox.delete(0, END)
+    for item in airfoils:
+        p=item.split('.')
+        if search.lower() in item.lower():
+            uv_profil_listbox.insert(END, p[0])
 
 root = Tk()
 root.geometry("1080x1000")
@@ -424,8 +461,17 @@ xy_profil_name_show_entry = Entry(top_text,textvariable=xy_profil_name,
     justify=CENTER,state=DISABLED,width=15)
 xy_profil_name_show_entry.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
 
-xy_profil_listbox = Listbox(top_text,selectmode=SINGLE,width=15,height=2)
-xy_profil_listbox.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
+xy_profil_frame = Frame(top_text)
+xy_profil_frame.pack(side=LEFT,fill=Y)
+xy_profil_search_var = StringVar()
+xy_profil_search_var.trace("w", lambda name, index, mode: update_xy_profile_list())
+xy_profil_search = Entry(xy_profil_frame, textvariable=xy_profil_search_var, width=15)
+xy_profil_search.pack(side=TOP, fill=X)
+xy_profil_scrollbar = Scrollbar(xy_profil_frame, orient=VERTICAL)
+xy_profil_listbox = Listbox(xy_profil_frame, selectmode=SINGLE, yscrollcommand=xy_profil_scrollbar.set, width=15,height=2)
+xy_profil_scrollbar.config(command=xy_profil_listbox.yview)
+xy_profil_scrollbar.pack(side=RIGHT, fill=Y)
+xy_profil_listbox.pack(side=LEFT, fill=BOTH, ipadx=3,ipady=5,padx=1,pady=10)
 profilenames= get_profilenames()
 xy_index,index = 0,0
 for item in profilenames:
@@ -438,7 +484,7 @@ xy_profil_listbox.see(xy_index)
 xy_profil_listbox.select_set(first=1166, last=None)
 xy_profil_listbox.bind("<Double-Button-1>", xy_profil_listbox_action)
 
-text_xy_profile_width = Label(top_text,text='XY Profil-Breite',bg='red',fg='black')
+text_xy_profile_width = Label(top_text,text='XY Profile Width',bg='red',fg='black')
 text_xy_profile_width.pack(side=LEFT,ipadx=1,ipady=5,padx=1,pady=10)
 
 xy_profile_width = IntVar()
@@ -469,7 +515,16 @@ uv_profil_name_show_entry = Entry(uv_lable,textvariable=uv_profil_name,
     justify=CENTER,state=DISABLED,width=15)
 uv_profil_name_show_entry.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
 
-uv_profil_listbox = Listbox(uv_lable,selectmode=SINGLE,bg="black",width=15,height=2)
+uv_profil_frame = Frame(uv_lable)
+uv_profil_frame.pack(side=LEFT,fill=Y)
+uv_profil_search_var = StringVar()
+uv_profil_search_var.trace("w", lambda name, index, mode: update_uv_profile_list())
+uv_profil_search = Entry(uv_profil_frame, textvariable=uv_profil_search_var, bg='black', width=15)
+uv_profil_search.pack(side=TOP, fill=X)
+uv_profil_scrollbar = Scrollbar(uv_profil_frame, orient=VERTICAL)
+uv_profil_listbox = Listbox(uv_profil_frame,selectmode=SINGLE,yscrollcommand=uv_profil_scrollbar.set,bg="black",width=15,height=2)
+uv_profil_scrollbar.config(command=uv_profil_listbox.yview)
+uv_profil_scrollbar.pack(side=RIGHT, fill=Y)
 uv_profil_listbox.pack(side=LEFT,ipadx=3,ipady=5,padx=1,pady=10)
 profilenames = get_profilenames()
 uv_index,index = 0,0
@@ -483,7 +538,7 @@ uv_profil_listbox.selection_set(uv_index)
 uv_profil_listbox.see(uv_index+5)
 uv_profil_listbox.bind("<Double-Button-1>", uv_profil_listbox_action)
 
-text_uv_profile_width = Label(uv_lable,text='UV Profil-Breite',bg='red',fg='black')
+text_uv_profile_width = Label(uv_lable,text='UV Profile Width',bg='red',fg='black')
 text_uv_profile_width.pack(side=LEFT,ipadx=1,ipady=5,padx=1,pady=10)
 
 uv_profile_width = IntVar()
@@ -513,7 +568,7 @@ xy_profile_draw.pack(side=LEFT)
 
 uv_profile_draw = Canvas(draw_lable, width=510, height=300)
 uv_profile_draw.pack()
-uv_profile_draw.create_text((250,100), text="UV PROFIL",font=('courier', 40, 'bold'))
+uv_profile_draw.create_text((250,100), text="UV PROFILE",font=('courier', 40, 'bold'))
 
 calculation_canvas = Canvas(calculation_lable, width=1000, height=400,state=NORMAL,bg="white")
 calculation_canvas.pack()

@@ -22,6 +22,7 @@ The Scripts
 * [Pocketing](pocket/) - Rectangular-Circular Pocketing Generator
 * [Text Engraving](engrave/) - This software engraves a text string
 * [Multi-line Text Engraving](engrave-lines/) - Engrave up to 10 lines of text
+* [Ruler Engraving](ruler/) - Engrave generic ruler in metric or standard with text
 
 
 
