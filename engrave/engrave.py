@@ -32,14 +32,15 @@
                python 2.4 (supplied with ubuntu 6.06)
 """
 version = '11'
-#fontfile = "/usr/share/qcad/fonts/romans2.cxf"
-fontfile = "/usr/share/qcad/fonts/romanc.cxf"
-#fontfile = "/usr/share/qcad/fonts/normal.cxf"
 
 from Tkinter import *
 from math import *
 import os
 import re
+import glob
+
+fontPath = os.path.dirname(os.path.realpath(__file__))+'/cxf-fonts/'
+fontList = [os.path.basename(x) for x in glob.glob(fontPath + '*.cxf')]
 
 IN_AXIS = os.environ.has_key("AXIS_PROGRESS_BAR")
 
@@ -184,11 +185,12 @@ class Application(Frame):
         self.Preamble = Entry(self.EntryFrame, textvariable=self.PreambleVar ,width=40)
         self.Preamble.grid(row=1, column=1)
 
-        self.st02 = Label(self.EntryFrame, text='Font File (Qcad .cxf)')
+
+        self.st02 = Label(self.EntryFrame, text='Font File')
         self.st02.grid(row=2, column=0)
         self.FontVar = StringVar()
-        self.FontVar.set(fontfile)
-        self.Font = Entry(self.EntryFrame, textvariable=self.FontVar ,width=40)
+        self.FontVar.set(fontList[0])
+        self.Font = OptionMenu(self.EntryFrame, self.FontVar, *fontList, command=self.updateFont)
         self.Font.grid(row=2, column=1)
         self.NormalColor =  self.Font.cget('bg')
 
@@ -292,6 +294,12 @@ class Application(Frame):
         self.quitButton.grid(row=13, column=0, sticky=S)
 
 #=======================================================================
+    def updateFont(self,value):
+		self.FontVar.set(value)
+		self.DoIt()
+
+
+#=======================================================================
     def CopyClipboard(self):
         self.clipboard_clear()
         for line in self.gcode:
@@ -334,8 +342,9 @@ class Application(Frame):
         # range check inputs for gross errors
         try:
             self.Font.configure( bg = self.NormalColor )
-            file = open(self.Font.get())
+            file = open(fontPath+self.FontVar.get())
         except:
+            print self.FontVar.get()
             self.Font.configure( bg = 'red' )
             return
 

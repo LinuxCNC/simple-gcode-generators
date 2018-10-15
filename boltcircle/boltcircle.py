@@ -21,6 +21,10 @@
 import math
 from Tkinter import *
 import tkMessageBox
+import os
+
+
+IN_AXIS = os.environ.has_key("AXIS_PROGRESS_BAR")
 
 class Application(Frame):
     def __init__(self, master=None):
@@ -129,7 +133,13 @@ class Application(Frame):
         self.ClearButton = Button(self, text="Clear Screen", command=self.ClearText)
         self.ClearButton.grid(row=12, column=2)
         
-        self.quitButton = Button(self, text="Quit", command=self.quit)
+        #self.quitButton = Button(self, text="Quit", command=self.quit)
+        #self.quitButton.grid(row=12, column=3)
+
+        if IN_AXIS:
+            self.quitButton = Button(self, text='Write to AXIS and Quit',command=self.WriteToAxis)
+        else:
+            self.quitButton = Button(self, text='Quit', command=self.quit)
         self.quitButton.grid(row=12, column=3)
 
     def GenCode(self, event):
@@ -170,15 +180,21 @@ class Application(Frame):
 
             count=count+1
 	   
-        self.g_code.insert(END, 'G80 (End of Cycle)')
+        self.g_code.insert(END, 'G80 (End of Cycle)\n')
         
     def CopyClpBd(self, event):
         '''This function copies the contents of g_code to the clipboard '''
         self.g_code.clipboard_clear()
         self.g_code.clipboard_append(self.g_code.get(0.0, END))
+        self.g_code.clipboard_append('M2\n')
 
     def ClearText(self):
         self.g_code.delete(1.0,END)
+
+    def WriteToAxis(self):
+        self.g_code.insert(END, 'M2\n')
+        sys.stdout.write(self.g_code.get(0.0, END)+'\n')
+        self.quit()
 
 app = Application()
 app.master.title("Bolt Circle Array G-Code Generator")
