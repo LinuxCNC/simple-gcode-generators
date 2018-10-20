@@ -2,7 +2,7 @@
 
 """
     Grill.py G-Code Generator
-    Version 1.6
+    Version 1.7
     Copyright (C) <2018> <Alex Bobotek> <alex at bobotek dot net>
   
     based on work by <Lawrence Glaister> and <John Thornton>  -- thanks Lawrence and John!
@@ -28,13 +28,16 @@
     Version 1.3 fixed "Y clipping" bug from V1.2, added true oval and renamed old "oval" to "ellipse"
     Version 1.5 changed 'EMC2' in comments to 'LinuxCNC', modified to run in Python 2 and Python 3, added hole diameter and % open area comments to gcode output
     Version 1.6 added square hole pattern option
+    Version 1.7 added write to file button and function
 """
 
 import sys
 
 if sys.version_info[0] >= 3:
+    from tkinter import filedialog
     from tkinter import *
 else:
+    from Tkinter import tkFileDialog
     from Tkinter import *
 from math import *
 import os
@@ -175,6 +178,9 @@ class Application(Frame):
         self.ToClipboard = Button(self.EntryFrame, text='To Clipboard', command=self.CopyClipboard)
         self.ToClipboard.grid(row=14, column=1)
 
+        self.ToFile = Button(self.EntryFrame, text='Write File', command=self.FileSave)
+        self.ToFile.grid(row=14, column=2)
+
         if IN_AXIS:
             self.quitButton = Button(self, text='Write to AXIS and Quit',command=self.WriteToAxis)
         else:
@@ -245,11 +251,12 @@ class Application(Frame):
             PercentOpenArea = 100*math.pi*(float(self.DrillVar.get())/2.0)*(float(self.DrillVar.get())/2.0) / (float(self.HoleSpaceVar.get())*float(self.HoleSpaceVar.get()))
         if self.ShapeVar.get() == 0:
             # temps used for circular grills
-            self.gcode.append('( %.4f dia circular grill at %.4f,%.4f with %.3f diameter holes and %.3f percent open area)'
+            self.gcode.append('( %.4f dia circular grill at %.4f,%.4f with %.3f diameter holes spaced %.3f and %.3f percent open area)'
                 %(float(self.GrillXVar.get()),
                   float(self.XGrillCenterVar.get()),
                   float(self.YGrillCenterVar.get()),
                   float(self.DrillVar.get()),
+                  float(self.HoleSpaceVar.get()),
                   PercentOpenArea
                   ))
             self.GrillY.configure(state=DISABLED)
@@ -264,12 +271,13 @@ class Application(Frame):
 
         if self.ShapeVar.get() == 1:      # ellipse
             # temps used for elliptical grills
-            self.gcode.append('( %.4fx%.4f elliptical grill at %.4f,%.4f with %.3f diameter holes and %.3f percent open area)'
+            self.gcode.append('( %.4fx%.4f elliptical grill at %.4f,%.4f with %.3f diameter holes spaced %.3f and %.3f percent open area)'
                 %(float(self.GrillXVar.get()),
                   float(self.GrillYVar.get()),
                   float(self.XGrillCenterVar.get()),
                   float(self.YGrillCenterVar.get()),
-                   float(self.DrillVar.get()),
+                  float(self.HoleSpaceVar.get()),
+                  float(self.DrillVar.get()),
                   PercentOpenArea
                  ))
 
@@ -290,12 +298,13 @@ class Application(Frame):
 
         if self.ShapeVar.get() == 2:      # rectangle
             # temps used for rectangular grills
-            self.gcode.append('( %.4fx%.4f rectangular grill at %.4f,%.4f with %.3f diameter holes and %.3f percent open area)'
+            self.gcode.append('( %.4fx%.4f rectangular grill at %.4f,%.4f with %.3f diameter holes spaced %.3f and %.3f percent open area)'
                 %(float(self.GrillXVar.get()),
                   float(self.GrillYVar.get()),
                   float(self.XGrillCenterVar.get()),
                   float(self.YGrillCenterVar.get()),
                   float(self.DrillVar.get()),
+                  float(self.HoleSpaceVar.get()),
                   PercentOpenArea
                   ))
 
@@ -314,12 +323,13 @@ class Application(Frame):
 
         if self.ShapeVar.get() == 3:      # oval
             # temps used for oval grills
-            self.gcode.append('( %.4fx%.4f oval grill at %.4f,%.4f with %.3f diameter holes and %.3f percent open area)'
+            self.gcode.append('( %.4fx%.4f oval grill at %.4f,%.4f with %.3f diameter holes spaced %.3f and %.3f percent open area)'
                 %(float(self.GrillXVar.get()),
                   float(self.GrillYVar.get()),
                   float(self.XGrillCenterVar.get()),
                   float(self.YGrillCenterVar.get()),
                   float(self.DrillVar.get()),
+                  float(self.HoleSpaceVar.get()),
                   PercentOpenArea
                   ))
 
@@ -412,11 +422,25 @@ class Application(Frame):
         for line in self.gcode:
             self.clipboard_append(line+'\n')
 
+    def FileSave(self):
+        if sys.version_info[0] >= 3:
+            savefile = filedialog.asksaveasfilename(defaultextension=".ngc",title = "Select file",filetypes = (("gcode files","*.ngc"),("all files","*.*")))
+        else:
+            savefile = tkFileDialog.asksaveasfilename(defaultextension=".ngc",title = "Select file",filetypes = (("gcode files","*.ngc"),("all files","*.*")))
+        if savefile is None: # asksaveasfile return `None` if dialog closed with "cancel".
+            return
+        if savefile == '':
+            return
+        f = open(savefile, 'w')
+        for line in self.gcode:
+            f.write(line + '\n')
+        f.close() # `()` was missing.
+
     def WriteToAxis(self):
         for line in self.gcode:
             sys.stdout.write(line+'\n')
         self.quit()
 
 app = Application()
-app.master.title("Grill.py 1.6 by Alex Bobotek and Lawrence Glaister")
+app.master.title("Grill.py 1.7 by Alex Bobotek and Lawrence Glaister")
 app.mainloop()
