@@ -276,8 +276,8 @@ class Application(Frame):
                   float(self.GrillYVar.get()),
                   float(self.XGrillCenterVar.get()),
                   float(self.YGrillCenterVar.get()),
-                  float(self.HoleSpaceVar.get()),
                   float(self.DrillVar.get()),
+                  float(self.HoleSpaceVar.get()),
                   PercentOpenArea
                  ))
 
