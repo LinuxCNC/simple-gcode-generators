@@ -103,6 +103,11 @@ A GPL 3D CNC Toolpath Generation program written by Lode Leroy.
 
 http://pycam.wiki.sourceforge.net/
 
+### RasterCarve - Raster image engraving software
+
+A GPLv2 raster engraving program similar to PhotoVCarve.
+
+https://github.com/built1n/rastercarve
 
 ### TTT: Truetype Tracer
 A TrueType tracer with DXF and G-Code output
