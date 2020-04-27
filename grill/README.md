@@ -12,7 +12,7 @@ Features
 
 * Can drill circular, elliptical, rectangular or oval rectangular shaped array of holes with triangular or square hole patterns
 * Usable as an axis filter program
-* G-Code can be copied to the clipboard for easy insertion into other gcode programs
+* G-Code can be written to a file or copied to the clipboard for easy insertion into other gcode programs
 
 Screenshot
 -----------
